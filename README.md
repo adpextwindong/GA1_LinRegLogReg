@@ -5,3 +5,5 @@
 - `pip install --upgrade numpy`
 
 - `pip install --upgrade scipy`
+
+- `pip install --upgrade matplotlib`
