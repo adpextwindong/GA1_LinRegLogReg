@@ -2,6 +2,7 @@ import sys
 import datetime
 import numpy as np
 import scipy
+import pandas
 
 import matplotlib
 matplotlib.use('Agg')
