@@ -11,39 +11,57 @@ matplotlib.use('Agg')
 #from matplotlib.backends.backend_pdf import PdfPages
 
 def main():
-
 	np.set_printoptions(suppress=True)
 	#np.set_printoptions(precision=4)
 
+
 	### Problem 1.1
+	printbold("Problem 1.1")
 
 	#Load data into X and y
-	X = []
-	y = []
-	with open('data/housing_train.txt', 'r') as datafile:
-		datareader = csv.reader(datafile, delimiter=' ',
-			skipinitialspace=True)
-		for row in datareader:
-			#Load independent and dummy variables into X
-			#Dummy variable in the first column
-			X.append([1] + row[:-1])
-			#Load dependent variable into Y
-			#Appended as list (instead of number) to make column vector
-			y.append([row[-1]])
-
-	#Convert to numpy matrix types
-	#and cast data from string to float
-	X = np.matrix(X, dtype=float)
-	y = np.matrix(y, dtype=float)
+	X_train = loadX('data/housing_train.txt', dummy=True)
+	y_train = loady('data/housing_train.txt')
 
 	#Calculate w, the optimal weight vector
-	w = (X.T * X).I * X.T * y
+	w = getw(X_train, y_train);
+
 	print("Optimal weight vector, w:")
 	print(w)
 	print
 
+
 	### Problem 1.2
-	
+	printbold("Problem 1.2")
+
+	ASE_train = getASE(X_train, y_train, w)
+
+	X_test = loadX('data/housing_test.txt', dummy=True)
+	y_test = loady('data/housing_test.txt')
+
+	ASE_test = getASE(X_test, y_test, w)
+
+	print("Training ASE: " + str(ASE_train))
+	print("Testing ASE: " + str(ASE_test))
+	print
+
+
+	### Problem 1.3
+	#printbold("Problem 1.3")
+
+
+
+def printbold(text):
+	print("\033[1m" + text + "\033[0m")
+
+def getw(X, y):
+	"""Calculate the optimal weight vector for a data set"""
+	w = (X.T * X).I * X.T * y
+
+	return w
+
+
+def getASE(X, y, w):
+	"""Calculate the Sum Squared Error of a data & weight vector pair"""
 	#Calculate the Sum Squared Error
 	#Matrix multiplication produces a 1x1 matrix
 	#[0,0] at the end gives the actual number
@@ -55,10 +73,48 @@ def main():
 
 	#Calculate the Average Squared Error
 	ASE = SSE / num_examples
-	print("Training ASE:")
-	print(ASE)
-	print
-	
+
+	return ASE
+
+
+def loadX(fname, dummy=True):
+	"""Load independent variable data from a file"""
+	X = []
+	with open(fname, 'r') as datafile:
+		datareader = csv.reader(datafile, delimiter=' ',
+			skipinitialspace=True)
+		for row in datareader:
+			#Load independent and dummy variables into X
+			if dummy:
+				#Dummy variable in the first column
+				X.append([1] + row[:-1])
+			else:
+				X.append(row[:-1])
+
+	#Convert to numpy matrix type
+	#and cast data from string to float
+	X = np.matrix(X, dtype=float)
+
+	return X
+
+
+def loady(fname):
+	"""Load dependent variable data from a file"""
+	y = []
+	with open(fname, 'r') as datafile:
+		datareader = csv.reader(datafile, delimiter=' ',
+			skipinitialspace=True)
+		for row in datareader:
+			#Load dependent variable into Y
+			#Appended as list (instead of number) to make column vector
+			y.append([row[-1]])
+
+	#Convert to numpy matrix type
+	#and cast data from string to float
+	y = np.matrix(y, dtype=float)
+
+	return y
+
 
 if __name__ == "__main__":
 	main()
