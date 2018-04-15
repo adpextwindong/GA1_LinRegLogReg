@@ -46,8 +46,7 @@ def main():
 	X_train_no_dummy = loadX('data/housing_train.txt', dummy=False)
 	X_test_no_dummy	= loadX('data/housing_test.txt', dummy=False)
 
-	#Drop 1 from weights so SSE's matrix_mul of X*w can work
-	WEIGHTS_no_dummy	= getw(X_train_no_dummy, y_train)[:len(w)-1]
+	WEIGHTS_no_dummy	= getw(X_train_no_dummy, y_train)
 	ASE_train_no_dummy	= getASE(X_train_no_dummy, y_train, WEIGHTS_no_dummy)
 	ASE_test_no_dummy	= getASE(X_test_no_dummy, y_test, WEIGHTS_no_dummy)
 
