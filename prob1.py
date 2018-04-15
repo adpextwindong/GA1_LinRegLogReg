@@ -24,12 +24,7 @@ def main():
 
 	#Calculate w, the optimal weight vector
 	w = getw(X_train, y_train);
-
-	print("Optimal weight vector, w:")
-	print(w)
-	print
-
-
+	print("Optimal weight vector, w:\n{}\n".format(w))
 	### Problem 1.2
 	printbold("Problem 1.2")
 
@@ -44,11 +39,22 @@ def main():
 	print("Testing ASE: " + str(ASE_test))
 	print
 
-
 	### Problem 1.3
-	#printbold("Problem 1.3")
+	printbold("Problem 1.3")
+	#Dummy Variable-less version of 1.1, 1.2
 
+	X_train_no_dummy = loadX('data/housing_train.txt', dummy=False)
+	X_test_no_dummy	= loadX('data/housing_test.txt', dummy=False)
 
+	#Drop 1 from weights so SSE's matrix_mul of X*w can work
+	WEIGHTS_no_dummy	= getw(X_train_no_dummy, y_train)[:len(w)-1]
+	ASE_train_no_dummy	= getASE(X_train_no_dummy, y_train, WEIGHTS_no_dummy)
+	ASE_test_no_dummy	= getASE(X_test_no_dummy, y_test, WEIGHTS_no_dummy)
+
+	print("Dummy Variable-less training results:")
+	print("Optimal weight vector, w:\n{}\n".format(WEIGHTS_no_dummy))
+	print("Training ASE: " + str(ASE_train_no_dummy))
+	print("Testing ASE: " + str(ASE_test_no_dummy))
 
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
