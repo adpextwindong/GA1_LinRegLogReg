@@ -88,7 +88,7 @@ def main():
 	plt.plot(d_list, ASE_test_plot_data, label='test')
 	plt.legend(loc='upper left')
 	plt.show()
-	fig.savefig("1_4_Report.pdf")
+	fig.savefig("1_4_Report.png")
 
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
