@@ -7,8 +7,8 @@ import csv
 
 import matplotlib
 matplotlib.use('Agg')
-#import matplotlib.pyplot as plt
-#from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 def main():
 	np.set_printoptions(suppress=True)
@@ -24,12 +24,7 @@ def main():
 
 	#Calculate w, the optimal weight vector
 	w = getw(X_train, y_train);
-
-	print("Optimal weight vector, w:")
-	print(w)
-	print
-
-
+	print("Optimal weight vector, w:\n{}\n".format(w))
 	### Problem 1.2
 	printbold("Problem 1.2")
 
@@ -44,11 +39,56 @@ def main():
 	print("Testing ASE: " + str(ASE_test))
 	print
 
-
 	### Problem 1.3
-	#printbold("Problem 1.3")
+	printbold("Problem 1.3")
+	#Dummy Variable-less version of 1.1, 1.2
 
+	X_train_no_dummy = loadX('data/housing_train.txt', dummy=False)
+	X_test_no_dummy	= loadX('data/housing_test.txt', dummy=False)
 
+	WEIGHTS_no_dummy	= getw(X_train_no_dummy, y_train)
+	ASE_train_no_dummy	= getASE(X_train_no_dummy, y_train, WEIGHTS_no_dummy)
+	ASE_test_no_dummy	= getASE(X_test_no_dummy, y_test, WEIGHTS_no_dummy)
+
+	print("Dummy Variable-less training results:")
+	print("Optimal weight vector, w:\n{}\n".format(WEIGHTS_no_dummy))
+	print("Training ASE: " + str(ASE_train_no_dummy))
+	print("Testing ASE: " + str(ASE_test_no_dummy))
+
+	### Problem 1.4
+	printbold("Problem 1.4")
+
+	y_train_d	= loady('data/housing_train.txt')
+	y_test_d	= loady('data/housing_test.txt')
+
+	ASE_train_plot_data = []
+	ASE_test_plot_data = []
+	
+	d_list = [0] + [ x for x in xrange(100) if x % 2 == 0]
+	for d in d_list:
+		X_train_d	= loadX('data/housing_train.txt', dummy=True, randFeatures=d)
+		X_test_d	= loadX('data/housing_test.txt', dummy=True, randFeatures=d)
+
+		WEIGHTS_d	= getw(X_train_d, y_train_d)
+		ASE_train_d	= getASE(X_train_d, y_train_d, WEIGHTS_d)
+		ASE_test_d	= getASE(X_test_d, y_test_d, WEIGHTS_d)
+
+		#print("Rand feature addtion training results D = {}:".format(d))
+		#print("Optimal weight vector, w:\n{}\n".format(WEIGHTS_d))
+		#print("Training ASE: " + str(ASE_train_d))
+		#print("Testing ASE: " + str(ASE_test_d))
+
+		ASE_train_plot_data.append(ASE_train_d)
+		ASE_test_plot_data.append(ASE_test_d)
+
+	fig = plt.figure()
+	plt.xlabel('d Random Features')
+	plt.ylabel('ASE(d)')
+	plt.plot(d_list, ASE_train_plot_data, label='train')
+	plt.plot(d_list, ASE_test_plot_data, label='test')
+	plt.legend(loc='upper left')
+	plt.show()
+	fig.savefig("1_4_Report.png")
 
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
@@ -77,7 +117,7 @@ def getASE(X, y, w):
 	return ASE
 
 
-def loadX(fname, dummy=True):
+def loadX(fname, dummy=True, randFeatures = 0):
 	"""Load independent variable data from a file"""
 	X = []
 	with open(fname, 'r') as datafile:
@@ -87,9 +127,9 @@ def loadX(fname, dummy=True):
 			#Load independent and dummy variables into X
 			if dummy:
 				#Dummy variable in the first column
-				X.append([1] + row[:-1])
+				X.append([1] + row[:-1] + np.random.standard_normal(randFeatures).tolist())
 			else:
-				X.append(row[:-1])
+				X.append(row[:-1] + np.random.standard_normal(randFeatures).tolist())
 
 	#Convert to numpy matrix type
 	#and cast data from string to float
