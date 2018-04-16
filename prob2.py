@@ -132,7 +132,7 @@ def main():
 
   plt.legend(loc='lower right')
   plt.show()
-  fig.savefig("LearningRateReport.png")
+  fig.savefig("LambdaReport.png")
 
 def printbold(text):
   print("\033[1m" + text + "\033[0m")
