@@ -78,24 +78,22 @@ def main():
   w_0 = np.matrix([0] * X_train.shape[1]).T
 
   #Calculate w, the optimal weight vector
-  w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0) 
-
-  print("Optimal weight vector, w:")
-  print(w)
-  print
-
-  accuracy_train = accuracy(X_train, y_train, w)
-  accuracy_test = accuracy(X_test, y_test, w)
-
-  print("Training accuracy: " + str(accuracy_train))
-  print("Testing accuracy: " + str(accuracy_test))
-  print
+  # w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0) 
+  # print("Optimal weight vector, w:")
+  # print(w)
+  # print
+  # accuracy_train = accuracy(X_train, y_train, w)
+  # accuracy_test = accuracy(X_test, y_test, w)
+  # print("Training accuracy: " + str(accuracy_train))
+  # print("Testing accuracy: " + str(accuracy_test))
+  # print
 
   ### Problem 2.3
   printbold("Problem 2.3")
 
   learningrates = [0.02, 0.02, 0.02, 0.005, 0.001, 0.0005, 0.0001]
-
+  accuracy_train_data = []
+  accuracy_test_data = []
   #The regularization 
   for i in range(7):
     reg_factor = 10 ** (i - 3)
@@ -105,12 +103,21 @@ def main():
       regularizationgradient(reg_factor, pos)
     w = gradientdescent(p2_3grad, eta=rate_eta, epsilon=1, w_0=w_0) 
 
-    accuracy_train = accuracy(X_train, y_train, w)
-    accuracy_test = accuracy(X_test, y_test, w)
+    accuracy_train_data.append(accuracy(X_train, y_train, w))
+    accuracy_test_data.append(accuracy(X_test, y_test, w))
 
-    print("Training accuracy: " + str(accuracy_train))
-    print("Testing accuracy: " + str(accuracy_test))
-    print
+    #print("Training accuracy: " + str(accuracy_train))
+    #print("Testing accuracy: " + str(accuracy_test))
+    #print
+
+  fig = plt.figure()
+  plt.xlabel('Learning Rate')
+  plt.ylabel('Accuracy(iteration)')
+  plt.semilogx(learningrates, accuracy_train_data, label='train')
+  plt.semilogx(learningrates, accuracy_test_data, label='test')
+  plt.legend(loc='lower right')
+  plt.show()
+  fig.savefig("LearningRateReport.png")
 
 def printbold(text):
   print("\033[1m" + text + "\033[0m")
