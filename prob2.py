@@ -78,15 +78,15 @@ def main():
   w_0 = np.matrix([0] * X_train.shape[1]).T
 
   #Calculate w, the optimal weight vector
-  # w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0) 
-  # print("Optimal weight vector, w:")
-  # print(w)
-  # print
-  # accuracy_train = accuracy(X_train, y_train, w)
-  # accuracy_test = accuracy(X_test, y_test, w)
-  # print("Training accuracy: " + str(accuracy_train))
-  # print("Testing accuracy: " + str(accuracy_test))
-  # print
+  w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0, plotAcc=True) 
+  print("Optimal weight vector, w:")
+  print(w)
+  print
+  accuracy_train = accuracy(X_train, y_train, w)
+  accuracy_test = accuracy(X_test, y_test, w)
+  print("Training accuracy: " + str(accuracy_train))
+  print("Testing accuracy: " + str(accuracy_test))
+  print
 
   ### Problem 2.3
   printbold("Problem 2.3")
@@ -94,27 +94,42 @@ def main():
   learningrates = [0.02, 0.02, 0.02, 0.005, 0.001, 0.0005, 0.0001]
   accuracy_train_data = []
   accuracy_test_data = []
+  
+  #accuracy_train_data_r = []
+  #accuracy_test_data_r = []
+  lambdas = []
+  
   #The regularization 
-  for i in range(7):
+  for i in range(4):
     reg_factor = 10 ** (i - 3)
+    lambdas.append(reg_factor)
     rate_eta = learningrates[i]
     print("regularization factor " + str(reg_factor)) 
-    p2_3grad = lambda pos: logisticgradient(X_train, y_train, pos) + \
+    p2_3grad_r = lambda pos: logisticgradient(X_train, y_train, pos) + \
       regularizationgradient(reg_factor, pos)
-    w = gradientdescent(p2_3grad, eta=rate_eta, epsilon=1, w_0=w_0) 
+    p2_3grad_no_r = lambda pos: logisticgradient(X_train, y_train, pos)
+
+    #w_r = gradientdescent(p2_3grad_r, eta=rate_eta, epsilon=1, w_0=w_0) 
+    w = gradientdescent(p2_3grad_no_r, eta=rate_eta, epsilon=1, w_0=w_0)
 
     accuracy_train_data.append(accuracy(X_train, y_train, w))
-    accuracy_test_data.append(accuracy(X_test, y_test, w))
+    accuracy_test_data.append(accuracy(X_test, y_test, w))    
+    
+    #accuracy_train_data_r.append(accuracy(X_train, y_train, w_r))
+    #accuracy_test_data_r.append(accuracy(X_test, y_test, w_r))
 
     #print("Training accuracy: " + str(accuracy_train))
     #print("Testing accuracy: " + str(accuracy_test))
     #print
 
   fig = plt.figure()
-  plt.xlabel('Learning Rate')
+  plt.xlabel('Lambda Value')
   plt.ylabel('Accuracy(iteration)')
-  plt.semilogx(learningrates, accuracy_train_data, label='train')
-  plt.semilogx(learningrates, accuracy_test_data, label='test')
+  plt.semilogx(lambdas, accuracy_train_data, label='train')
+  plt.semilogx(lambdas, accuracy_test_data, label='test')
+  #plt.semilogx(learningrates, accuracy_train_data_r, label='train_r')
+  #plt.semilogx(learningrates, accuracy_test_data_r, label='test_r')
+
   plt.legend(loc='lower right')
   plt.show()
   fig.savefig("LearningRateReport.png")
