@@ -8,8 +8,55 @@ import math
 
 import matplotlib
 matplotlib.use('Agg')
-#import matplotlib.pyplot as plt
-#from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+
+def loadX(fname, dummy=True):
+  """Load independent variable data from a file"""
+  X = []
+  with open(fname, 'r') as datafile:
+    datareader = csv.reader(datafile, delimiter=',',
+      skipinitialspace=True)
+    for row in datareader:
+      #Load independent and dummy variables into X
+      if dummy:
+        #Dummy variable in the first column
+        X.append([1] + row[:-1])
+      else:
+        X.append(row[:-1])
+
+  #Convert to numpy matrix type
+  #and cast data from string to float
+  X = np.matrix(X, dtype=float)
+
+  return X
+
+
+def loady(fname):
+  """Load dependent variable data from a file"""
+  y = []
+  with open(fname, 'r') as datafile:
+    datareader = csv.reader(datafile, delimiter=',',
+      skipinitialspace=True)
+    for row in datareader:
+      #Load dependent variable into Y
+      #Appended as list (instead of number) to make column vector
+      y.append([row[-1]])
+
+  #Convert to numpy matrix type
+  #and cast data from string to float
+  y = np.matrix(y, dtype=int)
+
+  return y
+
+
+  #Load training data
+X_train = loadX('data/usps-4-9-train.csv', dummy=True)
+y_train = loady('data/usps-4-9-train.csv')
+
+#Load testing data
+X_test = loadX('data/usps-4-9-test.csv', dummy=True)
+y_test = loady('data/usps-4-9-test.csv')
 
 def main():
   np.set_printoptions(suppress=True)
@@ -18,15 +65,11 @@ def main():
 
   ### Problem 2.1
   printbold("Problem 2.1")
-
-  #Load training data
-  X_train = loadX('data/usps-4-9-train.csv', dummy=True)
-  y_train = loady('data/usps-4-9-train.csv')
-
-  #Load testing data
-  X_test = loadX('data/usps-4-9-test.csv', dummy=True)
-  y_test = loady('data/usps-4-9-test.csv')
   #Adjust the values of X so x_ij is in [0,1]
+  global X_train
+  global y_train
+  global X_test
+  global y_test
   X_train = X_train * (1.0/255)
 
   #Create a gradient function for the first section
@@ -35,24 +78,22 @@ def main():
   w_0 = np.matrix([0] * X_train.shape[1]).T
 
   #Calculate w, the optimal weight vector
-  w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0) 
-
-  print("Optimal weight vector, w:")
-  print(w)
-  print
-
-  accuracy_train = accuracy(X_train, y_train, w)
-  accuracy_test = accuracy(X_test, y_test, w)
-
-  print("Training accuracy: " + str(accuracy_train))
-  print("Testing accuracy: " + str(accuracy_test))
-  print
+  # w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0) 
+  # print("Optimal weight vector, w:")
+  # print(w)
+  # print
+  # accuracy_train = accuracy(X_train, y_train, w)
+  # accuracy_test = accuracy(X_test, y_test, w)
+  # print("Training accuracy: " + str(accuracy_train))
+  # print("Testing accuracy: " + str(accuracy_test))
+  # print
 
   ### Problem 2.3
   printbold("Problem 2.3")
 
   learningrates = [0.02, 0.02, 0.02, 0.005, 0.001, 0.0005, 0.0001]
-
+  accuracy_train_data = []
+  accuracy_test_data = []
   #The regularization 
   for i in range(7):
     reg_factor = 10 ** (i - 3)
@@ -62,23 +103,36 @@ def main():
       regularizationgradient(reg_factor, pos)
     w = gradientdescent(p2_3grad, eta=rate_eta, epsilon=1, w_0=w_0) 
 
-    accuracy_train = accuracy(X_train, y_train, w)
-    accuracy_test = accuracy(X_test, y_test, w)
+    accuracy_train_data.append(accuracy(X_train, y_train, w))
+    accuracy_test_data.append(accuracy(X_test, y_test, w))
 
-    print("Training accuracy: " + str(accuracy_train))
-    print("Testing accuracy: " + str(accuracy_test))
-    print
-    
-    
+    #print("Training accuracy: " + str(accuracy_train))
+    #print("Testing accuracy: " + str(accuracy_test))
+    #print
 
+  fig = plt.figure()
+  plt.xlabel('Learning Rate')
+  plt.ylabel('Accuracy(iteration)')
+  plt.semilogx(learningrates, accuracy_train_data, label='train')
+  plt.semilogx(learningrates, accuracy_test_data, label='test')
+  plt.legend(loc='lower right')
+  plt.show()
+  fig.savefig("LearningRateReport.png")
 
 def printbold(text):
   print("\033[1m" + text + "\033[0m")
 
-
-def gradientdescent(gradf, eta, epsilon, w_0): 
+def gradientdescent(gradf, eta, epsilon, w_0, plotAcc=False): 
   #Initialize 'w' to a column vector of zeros
   w = w_0
+  global X_train
+  global y_train
+  global X_test
+  global y_test
+
+  if(plotAcc):
+    acc_data_train = [accuracy(X_train, y_train, w)]
+    acc_data_test = [accuracy(X_test, y_test, w)]
 
   while True:
     #Calculate the gradient at position 'w'
@@ -86,11 +140,24 @@ def gradientdescent(gradf, eta, epsilon, w_0):
     #Descend based on the learning rate 'eta' and gradient 'nabla'
     w = w - eta * nabla
 
+    if(plotAcc):
+      acc_data_train.append(accuracy(X_train, y_train, w))
+      acc_data_test.append(accuracy(X_test, y_test, w))
     print(np.linalg.norm(nabla))
     
     if (np.linalg.norm(nabla) < epsilon):
       #Break when stop condition has been reached
       break
+
+  if(plotAcc):
+    fig = plt.figure()
+    plt.xlabel('Gradient Descent Iteration')
+    plt.ylabel('Accuracy(iteration)')
+    plt.semilogx(range(0,len(acc_data_train)), acc_data_train, label='train')
+    plt.semilogx(range(0,len(acc_data_test)), acc_data_test, label='test')
+    plt.legend(loc='lower right')
+    plt.show()
+    fig.savefig("2_1_Report.png")
 
   return w
 
@@ -146,43 +213,7 @@ def sigmoid(val):
   return 1.0/(1 + math.exp(-val))
 
 
-def loadX(fname, dummy=True):
-  """Load independent variable data from a file"""
-  X = []
-  with open(fname, 'r') as datafile:
-    datareader = csv.reader(datafile, delimiter=',',
-      skipinitialspace=True)
-    for row in datareader:
-      #Load independent and dummy variables into X
-      if dummy:
-        #Dummy variable in the first column
-        X.append([1] + row[:-1])
-      else:
-        X.append(row[:-1])
 
-  #Convert to numpy matrix type
-  #and cast data from string to float
-  X = np.matrix(X, dtype=float)
-
-  return X
-
-
-def loady(fname):
-  """Load dependent variable data from a file"""
-  y = []
-  with open(fname, 'r') as datafile:
-    datareader = csv.reader(datafile, delimiter=',',
-      skipinitialspace=True)
-    for row in datareader:
-      #Load dependent variable into Y
-      #Appended as list (instead of number) to make column vector
-      y.append([row[-1]])
-
-  #Convert to numpy matrix type
-  #and cast data from string to float
-  y = np.matrix(y, dtype=int)
-
-  return y
 
 
 if __name__ == "__main__":
