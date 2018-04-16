@@ -70,7 +70,7 @@ def main():
   global y_train
   global X_test
   global y_test
-  X_train= X_train * (1.0/256)
+  X_train = X_train * (1.0/255)
 
   #Create a gradient function for the first section
   p2_1grad = lambda pos: logisticgradient(X_train, y_train, pos)
@@ -78,7 +78,7 @@ def main():
   w_0 = np.matrix([0] * X_train.shape[1]).T
 
   #Calculate w, the optimal weight vector
-  w = gradientdescent(p2_1grad, eta=0.04, epsilon=1.0, w_0=w_0, plotAcc=True) 
+  w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0) 
 
   print("Optimal weight vector, w:")
   print(w)
@@ -90,6 +90,27 @@ def main():
   print("Training accuracy: " + str(accuracy_train))
   print("Testing accuracy: " + str(accuracy_test))
   print
+
+  ### Problem 2.3
+  printbold("Problem 2.3")
+
+  learningrates = [0.02, 0.02, 0.02, 0.005, 0.001, 0.0005, 0.0001]
+
+  #The regularization 
+  for i in range(7):
+    reg_factor = 10 ** (i - 3)
+    rate_eta = learningrates[i]
+    print("regularization factor " + str(reg_factor)) 
+    p2_3grad = lambda pos: logisticgradient(X_train, y_train, pos) + \
+      regularizationgradient(reg_factor, pos)
+    w = gradientdescent(p2_3grad, eta=rate_eta, epsilon=1, w_0=w_0) 
+
+    accuracy_train = accuracy(X_train, y_train, w)
+    accuracy_test = accuracy(X_test, y_test, w)
+
+    print("Training accuracy: " + str(accuracy_train))
+    print("Testing accuracy: " + str(accuracy_test))
+    print
 
 def printbold(text):
   print("\033[1m" + text + "\033[0m")
@@ -133,6 +154,7 @@ def gradientdescent(gradf, eta, epsilon, w_0, plotAcc=False):
 
   return w
 
+
 def logisticgradient(X, y, w):
   #initialize nabla to a column vector of zeros
   nabla = np.matrix([0] * w.size).T
@@ -147,6 +169,10 @@ def logisticgradient(X, y, w):
 
   return nabla
 
+
+def regularizationgradient(lambda_the_variable_not_lambda_the_keyword, w):
+  return lambda_the_variable_not_lambda_the_keyword * w
+  
 
 def accuracy(X, y, w):
   #Store the number of data points
@@ -174,6 +200,7 @@ def logisticP1(x, w):
 
 def logisticP0(x, w):
   return 1 - logisticP1(x, w)
+
 
 def sigmoid(val):
   return 1.0/(1 + math.exp(-val))
