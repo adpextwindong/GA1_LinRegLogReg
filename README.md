@@ -20,4 +20,4 @@ See 1_4_Report.png and LambdaReport.png
 
 ![D Random Features](1_4_Report.png)
 
-
+![Different Lambdas and Accuracy](LambdaReport.png)
