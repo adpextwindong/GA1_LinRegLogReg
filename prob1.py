@@ -63,7 +63,8 @@ def main():
 
 	ASE_train_plot_data = []
 	ASE_test_plot_data = []
-	d_list = [ x for x in xrange(100) if x % 2 == 0]
+	
+	d_list = [0] + [ x for x in xrange(100) if x % 2 == 0]
 	for d in d_list:
 		X_train_d	= loadX('data/housing_train.txt', dummy=True, randFeatures=d)
 		X_test_d	= loadX('data/housing_test.txt', dummy=True, randFeatures=d)
