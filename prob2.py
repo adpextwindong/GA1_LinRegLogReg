@@ -27,7 +27,7 @@ def main():
   X_test = loadX('data/usps-4-9-test.csv', dummy=True)
   y_test = loady('data/usps-4-9-test.csv')
   #Adjust the values of X so x_ij is in [0,1]
-  X_train = X_train * (1.0/256)
+  X_train = X_train * (1.0/255)
 
   #Create a gradient function for the first section
   p2_1grad = lambda pos: logisticgradient(X_train, y_train, pos)
@@ -35,7 +35,7 @@ def main():
   w_0 = np.matrix([0] * X_train.shape[1]).T
 
   #Calculate w, the optimal weight vector
-  w = gradientdescent(p2_1grad, eta=0.02, epsilon=0.1, w_0=w_0) 
+  w = gradientdescent(p2_1grad, eta=0.03, epsilon=1, w_0=w_0) 
 
   print("Optimal weight vector, w:")
   print(w)
@@ -45,11 +45,31 @@ def main():
   accuracy_test = accuracy(X_test, y_test, w)
 
   print("Training accuracy: " + str(accuracy_train))
-  print("Testing accuracy: " + str(accuracy_train))
+  print("Testing accuracy: " + str(accuracy_test))
   print
 
+  ### Problem 2.3
+  printbold("Problem 2.3")
 
+  learningrates = [0.02, 0.02, 0.02, 0.005, 0.001, 0.0005, 0.0001]
 
+  #The regularization 
+  for i in range(7):
+    reg_factor = 10 ** (i - 3)
+    rate_eta = learningrates[i]
+    print("regularization factor " + str(reg_factor)) 
+    p2_3grad = lambda pos: logisticgradient(X_train, y_train, pos) + \
+      regularizationgradient(reg_factor, pos)
+    w = gradientdescent(p2_3grad, eta=rate_eta, epsilon=1, w_0=w_0) 
+
+    accuracy_train = accuracy(X_train, y_train, w)
+    accuracy_test = accuracy(X_test, y_test, w)
+
+    print("Training accuracy: " + str(accuracy_train))
+    print("Testing accuracy: " + str(accuracy_test))
+    print
+    
+    
 
 
 def printbold(text):
@@ -74,6 +94,7 @@ def gradientdescent(gradf, eta, epsilon, w_0):
 
   return w
 
+
 def logisticgradient(X, y, w):
   #initialize nabla to a column vector of zeros
   nabla = np.matrix([0] * w.size).T
@@ -88,6 +109,10 @@ def logisticgradient(X, y, w):
 
   return nabla
 
+
+def regularizationgradient(lambda_the_variable_not_lambda_the_keyword, w):
+  return lambda_the_variable_not_lambda_the_keyword * w
+  
 
 def accuracy(X, y, w):
   #Store the number of data points
@@ -115,6 +140,7 @@ def logisticP1(x, w):
 
 def logisticP0(x, w):
   return 1 - logisticP1(x, w)
+
 
 def sigmoid(val):
   return 1.0/(1 + math.exp(-val))
