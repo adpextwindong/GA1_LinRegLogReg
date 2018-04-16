@@ -100,7 +100,7 @@ def main():
   lambdas = []
   
   #The regularization 
-  for i in range(4):
+  for i in range(5):
     reg_factor = 10 ** (i - 3)
     lambdas.append(reg_factor)
     rate_eta = learningrates[i]
