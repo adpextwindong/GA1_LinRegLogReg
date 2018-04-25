@@ -19,6 +19,15 @@ def main():
 	### Problem 1.1
 	printbold("Problem 1.1")
 
+	#TODO FILEIO
+	#TODO NORMALIZATION
+	#TODO KNN(K) -> [k nearest neighbors]
+	#TODO CLASSIFY([NEIGHBORS]) -> CLASS LABEL
+	#PLOT THESE AS FUNCTION OF K
+	#TODO PLOTTING TRAINING ERROR (# of mistakes on train)
+	#TODO PLOTTING TEST ERROR (# of mistakes on test)
+	#TODO Leave one out crossvalidation on training set
+
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
 
