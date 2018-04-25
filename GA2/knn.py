@@ -36,43 +36,39 @@ def printbold(text):
 	print("\033[1m" + text + "\033[0m")
 
 
-def loadX(fname, dummy=True, randFeatures = 0):
-	"""Load independent variable data from a file"""
-	X = []
-	with open(fname, 'r') as datafile:
-		datareader = csv.reader(datafile, delimiter=' ',
-			skipinitialspace=True)
-		for row in datareader:
-			#Load independent and dummy variables into X
-			if dummy:
-				#Dummy variable in the first column
-				X.append([1] + row[:-1] + np.random.standard_normal(randFeatures).tolist())
-			else:
-				X.append(row[:-1] + np.random.standard_normal(randFeatures).tolist())
+def loadX(fname):
+  """Load independent variable data from a file"""
+  X = []
+  with open(fname, 'r') as datafile:
+    datareader = csv.reader(datafile, delimiter=',',
+      skipinitialspace=True)
+    for row in datareader:
+      #Load independent and dummy variables into X
+      X.append(row[1:])
 
-	#Convert to numpy matrix type
-	#and cast data from string to float
-	X = np.matrix(X, dtype=float)
+  #Convert to numpy matrix type
+  #and cast data from string to float
+  X = np.matrix(X, dtype=float)
 
-	return X
+  return X
 
 
 def loady(fname):
-	"""Load dependent variable data from a file"""
-	y = []
-	with open(fname, 'r') as datafile:
-		datareader = csv.reader(datafile, delimiter=' ',
-			skipinitialspace=True)
-		for row in datareader:
-			#Load dependent variable into Y
-			#Appended as list (instead of number) to make column vector
-			y.append([row[-1]])
+  """Load dependent variable data from a file"""
+  y = []
+  with open(fname, 'r') as datafile:
+    datareader = csv.reader(datafile, delimiter=',',
+      skipinitialspace=True)
+    for row in datareader:
+      #Load dependent variable into Y
+      #Appended as list (instead of number) to make column vector
+      y.append([row[0]])
 
-	#Convert to numpy matrix type
-	#and cast data from string to float
-	y = np.matrix(y, dtype=float)
+  #Convert to numpy matrix type
+  #and cast data from string to float
+  y = np.matrix(y, dtype=int)
 
-	return y
+  return y
 
 def euclideanDistance(v,w):
 	assert(len(v) == len(w))
