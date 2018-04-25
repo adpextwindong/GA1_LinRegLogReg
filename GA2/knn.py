@@ -1,10 +1,14 @@
 import sys
 import datetime
+
 import numpy as np
 import scipy
 import pandas
+
 import csv
+
 import math
+from random import randint
 
 import matplotlib
 matplotlib.use('Agg')
@@ -77,17 +81,28 @@ def euclideanDistance(v,w):
 		sum += pow((p[0] - p[1]), 2)
 	return math.sqrt(sum)
 
+def naive_knn(data, point, k):
+	dists = []
+	for i,p in enumerate(data):
+		dists.append((euclideanDistance(point, p), i))
+	neighbors_val_ind_pairs = sorted(dists, key=lambda x : x[0])
+	#print neighbors_val_ind_pairs
+	ret = []
+	for _, i in neighbors_val_ind_pairs:
+		ret.append(data[i])
+	return ret
+
+def rand_vec(dimension):
+	return [randint(0, 300) for _ in xrange(dimension)]
+
+def rand_dataset(n_data_points, dimension):
+	return [rand_vec(dimension) for _ in xrange(n_data_points)]
+
+def benchmark_naive_knn(scale_d, scale_n, k):
+	scale_test_p = rand_vec(scale_d)
+	scale_test_data = rand_dataset(scale_n, scale_d)
+	naive_knn(scale_test_data, scale_test_p, k)
+
 if __name__ == '__main__':
-	v = [1,2,3,4]
-	w = [4,3,5,7]
-
-	data = [
-		[2,3,4,5,6],
-		[2,3,4,5,6],
-		[7,8,5,7,3],
-		[2,3,4,5,6],
-		[1,2,3,4,5]
-	]
-	print euclideanDistance(v,w)	
-
+	print "main"
 
