@@ -19,13 +19,20 @@ def main():
 	np.set_printoptions(suppress=True)
 	#np.set_printoptions(precision=4)
 
+	train = loadX('data/knn_train.csv')
+	test = loadX('data/knn_test.csv')
 
+	norm_vector = findNormalizationVector(np.concatenate((train,test)))
+	
+	normalized_train = applyNorm(train, norm_vector)
+	normalized_test = applyNorm(test, norm_vector)
+
+	print normalized_train
+
+	#print findNormalizationVector(train)
 	### Problem 1.1
 	printbold("Problem 1.1")
-
-	#TODO FILEIO
-	#TODO NORMALIZATION
-	#TODO KNN(K) -> [k nearest neighbors]
+	
 	#TODO CLASSIFY([NEIGHBORS]) -> CLASS LABEL
 	#PLOT THESE AS FUNCTION OF K
 	#TODO PLOTTING TRAINING ERROR (# of mistakes on train)
@@ -35,6 +42,23 @@ def main():
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
 
+### returns a copy with the norm applied
+def applyNorm(in_matrix, norm_vector):
+	ret_matrix = in_matrix.copy()
+	rows = in_matrix.shape[0]
+	assert(in_matrix.shape[1] == len(norm_vector))
+	for row in xrange(rows):
+		for col,(col_min, col_max) in enumerate(norm_vector):
+			col_range = col_max - col_min
+			ret_matrix[row, col] = (ret_matrix[row, col] -  col_min) / col_range
+			
+
+	return ret_matrix
+
+def findNormalizationVector(data_matrix):
+	number_of_features = data_matrix.shape[1]
+	normRanges = [(np.min(data_matrix[:,col]) , (np.max(data_matrix[:,col]))) for col in xrange(number_of_features)]
+	return normRanges
 
 def loadX(fname):
   """Load independent variable data from a file"""
@@ -100,5 +124,4 @@ def benchmark_naive_knn(scale_d, scale_n, k):
 	naive_knn(scale_test_data, scale_test_p, k)
 
 if __name__ == '__main__':
-	print "main"
-
+	main()
