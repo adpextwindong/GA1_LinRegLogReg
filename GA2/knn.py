@@ -22,8 +22,9 @@ def main():
 	train = loadX('data/knn_train.csv')
 	test = loadX('data/knn_test.csv')
 
-	norm_vector = findNormalizationVector(np.concatenate((train,test)))
-	
+	#norm_vector = findNormalizationVector(np.concatenate((train,test)))
+	norm_vector = findNormalizationVector(train) 	
+
 	normalized_train = applyNorm(train, norm_vector)
 	normalized_test = applyNorm(test, norm_vector)
 
