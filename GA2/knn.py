@@ -33,7 +33,17 @@ def main():
 	#print findNormalizationVector(train)
 	### Problem 1.1
 	printbold("Problem 1.1")
-	
+	k = 5
+	random_point = rand_vec(30)
+	print "k: {} random_point: {}".format(k, random_point)
+
+	neighbors = naive_knn(normalized_train, random_point,k)
+	print "Neighbors: {}".format(neighbors)
+
+
+
+	import pdb; pdb.set_trace()
+
 	#TODO CLASSIFY([NEIGHBORS]) -> CLASS LABEL
 	#PLOT THESE AS FUNCTION OF K
 	#TODO PLOTTING TRAINING ERROR (# of mistakes on train)
@@ -104,13 +114,14 @@ def euclideanDistance(v,w):
 
 def naive_knn(data, point, k):
 	dists = []
-	for i,p in enumerate(data):
+	A = np.squeeze(np.asarray(data)).tolist()
+	for i,p in enumerate(A):
 		dists.append((euclideanDistance(point, p), i))
 	neighbors_val_ind_pairs = sorted(dists, key=lambda x : x[0])
 	#print neighbors_val_ind_pairs
 	ret = []
 	for _, i in neighbors_val_ind_pairs:
-		ret.append(data[i])
+		ret.append(data[i,:].tolist()[0])
 	return ret
 
 def rand_vec(dimension):
