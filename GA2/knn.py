@@ -20,41 +20,67 @@ def main():
 	#np.set_printoptions(precision=4)
 
 	train = loadX('data/knn_train.csv')
+	y_train = loady('data/knn_train.csv')
 	test = loadX('data/knn_test.csv')
+	y_test = loady('data/knn_test.csv')
 
 	#norm_vector = findNormalizationVector(np.concatenate((train,test)))
 	norm_vector = findNormalizationVector(train) 	
 
-	normalized_train = applyNorm(train, norm_vector)
-	normalized_test = applyNorm(test, norm_vector)
+	normalized_train = applyNormMatrix(train, norm_vector)
+	normalized_test = applyNormMatrix(test, norm_vector)
 
-	print normalized_train
+	#print normalized_train
 
 	#print findNormalizationVector(train)
 	### Problem 1.1
 	printbold("Problem 1.1")
 	k = 5
-	random_point = rand_vec(30)
-	print "k: {} random_point: {}".format(k, random_point)
+	random_point = applyNormVector(rand_vec(30), norm_vector)
+	knn_res = knn_classify(normalized_train, y_train, random_point, k)
+	#print "k: {} random_point: {}\n".format(k, random_point)
+	if (knn_res == 1):
+		print "K = {} : Positive Result".format(k)
+	else:
+		print "K = {} : Negative Result".format(k)
 
-	neighbors = naive_knn(normalized_train, random_point,k)
-	print "Neighbors: {}".format(neighbors)
-
-
-
-	import pdb; pdb.set_trace()
-
-	#TODO CLASSIFY([NEIGHBORS]) -> CLASS LABEL
 	#PLOT THESE AS FUNCTION OF K
 	#TODO PLOTTING TRAINING ERROR (# of mistakes on train)
 	#TODO PLOTTING TEST ERROR (# of mistakes on test)
 	#TODO Leave one out crossvalidation on training set
 
+"""
+	Expects normalized data, returns -1 or 1 classifier
+"""
+def knn_classify(data, labels, point, k):
+	neighbors = naive_knn(data, point,k)
+
+	classes = []
+	for _, neighbor_i in neighbors:
+		classes.append(labels[neighbor_i,0])
+		#print labels[neighbor_i,0]
+	positives = filter(lambda x: x == 1,classes)
+	negatives = filter(lambda x: x == -1, classes)
+
+	if(len(positives) >= len(negatives)):
+		return 1
+	else:
+		return -1
+
+
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
 
+def applyNormVector(in_vec, norm_vec):
+	out_vec = list(in_vec)
+	for col,(col_min, col_max) in enumerate(norm_vec):
+			col_range = col_max - col_min
+			out_vec[col] = (out_vec[col] -  col_min) / col_range
+
+	return out_vec
+
 ### returns a copy with the norm applied
-def applyNorm(in_matrix, norm_vector):
+def applyNormMatrix(in_matrix, norm_vector):
 	ret_matrix = in_matrix.copy()
 	rows = in_matrix.shape[0]
 	assert(in_matrix.shape[1] == len(norm_vector))
@@ -120,8 +146,9 @@ def naive_knn(data, point, k):
 	neighbors_val_ind_pairs = sorted(dists, key=lambda x : x[0])
 	#print neighbors_val_ind_pairs
 	ret = []
-	for _, i in neighbors_val_ind_pairs:
-		ret.append(data[i,:].tolist()[0])
+	for _, i in neighbors_val_ind_pairs[:k]:
+		ret.append((data[i,:].tolist()[0],i))
+
 	return ret
 
 def rand_vec(dimension):
