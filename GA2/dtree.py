@@ -31,61 +31,81 @@ Decision = collections.namedtuple('Decision', ['feature', 'threshold'])
 #Build a decision tree for a data set
 #Desicions are selected by maximization of entropy based information gain
 def buildTree(X, y, depth):
+  print("Building tree. Depth left: " + str(depth))
+  #print("Current data set: ", X, y)
   t = DTree()
   #Base case: partition is uniform
   if (sameLabel(y)):
+    print("Same label termination")
     t.prediction = y[0,0]
     return t
 
   #Base case: depth 0
   if (depth == 0):
+    print("Max depth reached termination")
     t.prediction = majority(y)
     return t
 
+  print("Finding best decision step")
   t.dec = bestDecision(X, y)
 
   #Sort X and y by ascending values of the decision feature
-  s_idx = np.argsort(X[:,t.dec.feature])
+  print("Sorting X and y by decision")
+  s_idx = np.argsort( np.ravel(X[:,t.dec.feature]) )
   X_sort = X[s_idx]
   y_sort = y[s_idx]
 
   #Partition X and y by the decision
-  
-  #TODO verify that this splits correctly
-  part_idx = bisect.bisect_right(X[:,t.dec.feature], t.dec.threshold)
+  print("Partitioning X and y by decision")
+  part_idx = bisect.bisect_right( np.ravel(X[:,t.dec.feature]), t.dec.threshold)
 
+  #print("X, y less than")
   X_le = X[:part_idx]
   y_le = y[:part_idx]
+  #print(X_le, y_le)
 
+  #print("X, y greater than")
   X_ge = X[part_idx:]
   y_ge = y[part_idx:]
+  #print(X_ge, y_ge)
 
   t.le = buildTree(X_le, y_le, depth-1)
   t.ge = buildTree(X_ge, y_ge, depth-1)
 
+  print("Stepping up")
   return t
 
 def bestDecision(X, y):
+  #print(y)
   best_gain = 0.0
   best_dec = None
   #For each column (feature)
   for col in range(X.shape[1]):
     #Sort X and y by ascending values of that column
-    s_ind = np.argsort(X[:,col])
+    #print("Testing feature " + str(col))
+    #print(X[:,col])
+    #Get sorting indexes from a flattened column
+    s_ind = np.argsort( np.ravel(X[:,col]) )
+    #print("Sort index vector ", s_ind)
     X_sort = X[s_ind]
     y_sort = y[s_ind]
+    #print("Sort arranged y", y_sort)
 
     #For each pair of adjacent values in the column
-    for row  in range(X.shape[0]-1):
-      if (y[row, 0] != y[row+1, 0]):
-        thr = (X[row, col] + X[row+1, col]) / 2.0
+    for row  in range(X_sort.shape[0]-1):
+      #print("Checking pair at row " + str(row))
+      if (y_sort[row, 0] != y_sort[row+1, 0]):
+        #print("Found pair to test at row" + str(row))
+        thr = (X_sort[row, col] + X_sort[row+1, col]) / 2.0
         dec = Decision(feature=col, threshold=thr)
-        gain = informationGain(X, y, dec)
+        gain = informationGain(X_sort, y_sort, dec)
+        #print("Considering decision: ", dec, "with gain: " + str(gain))
 
         if (gain > best_gain):
           best_gain = gain
           best_dec = dec
 
+  print("Best decision: ", best_dec, "With gain: " + str(best_gain))
   return best_dec
   
 
@@ -112,16 +132,59 @@ def sameLabel(y):
 
 def informationGain(X, y, dec):
   # get entropy ofnode, then both children and calc total gain
+  part_idx = bisect.bisect_right( np.ravel(X[:,dec.feature]), dec.threshold)
+
+  #Partition the range by the decision
+  y_le = y[:part_idx]
+  y_ge = y[part_idx:]
+  #print(y_le)
+  #print(y_ge)
+
+  #Calculate p1 and p2 (the probability of choosing each branch)
+  p1 = float(part_idx) / y.size
+  p2 = 1 - p1
  
-  parentEnt = 0.0
-  lChildEnt = 0.0
-  rChildEnt = 0.0
+  #Calculate the entropy of the parent and child nodes
+  parentEnt = getEntropy(y)
+  lChildEnt = getEntropy(y_le)
+  rChildEnt = getEntropy(y_ge)
 
-  return (parentEnt-lChildEnt-rChildEnt) #return the resulting info gainz
+  #return the resulting info gainz
+  return (parentEnt-(p1 * lChildEnt + p2 * rChildEnt))
 
 
-def getEntropy(prob1,prob2):
-  return (-1 * prob1 * np.log2(prob1)) - (prob2 * np.log2(prob2))
+def getEntropy(y):
+  #Record the total number of data points
+  total = float(y.size)
+
+  #Count the negative and positive examples
+  pos = 0
+  neg = 0
+  for i in range(y.size):
+    if (y[i,0] == 1):
+      pos += 1
+    else:
+      neg += 1
+
+  #Calculate the positive and negative probabilities
+  p_pos = pos / total
+  p_neg = neg / total
+
+  #Calculate each part of the entropy
+  if (p_pos > 0):
+    ent_pos = (-1)*(p_pos * math.log(p_pos, 2))
+  else:
+    ent_pos = 0
+
+  if (p_neg > 0):
+    ent_neg = (-1)*(p_neg * math.log(p_neg, 2))
+  else:
+    ent_neg = 0
+
+  return ent_pos + ent_neg
+
+#def getEntropy(prob1,prob2):
+#  return (-1 * prob1 * np.log2(prob1)) - (prob2 * np.log2(prob2))
 
 
 def printbold(text):
@@ -193,13 +256,13 @@ def main():
   X_train = loadX('data/knn_train.csv')
   y_train = loady('data/knn_train.csv')
 
-  print(X_train)
-  print(y_train)
+  #print(X_train)
+  #print(y_train)
 
   #norm = findNormalizationVector(X_train)
 
   #Build stump decision tree
-  d = buildTree(X, y, depth=1)
+  d = buildTree(X_train, y_train, depth=2)
 
 
 if __name__ == "__main__":
