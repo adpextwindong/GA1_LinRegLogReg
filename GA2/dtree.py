@@ -38,41 +38,48 @@ def buildTree(X, y, depth):
   if (sameLabel(y)):
     print("Same label termination")
     t.prediction = y[0,0]
+    print("Prediction: " + str(t.prediction))
     return t
 
   #Base case: depth 0
   if (depth == 0):
     print("Max depth reached termination")
     t.prediction = majority(y)
+    print("Prediction: " + str(t.prediction))
     return t
 
-  print("Finding best decision step")
+  print("Finding best decision")
   t.dec = bestDecision(X, y)
 
   #Sort X and y by ascending values of the decision feature
-  print("Sorting X and y by decision")
+  #print("Sorting X and y by decision")
   s_idx = np.argsort( np.ravel(X[:,t.dec.feature]) )
   X_sort = X[s_idx]
   y_sort = y[s_idx]
 
   #Partition X and y by the decision
-  print("Partitioning X and y by decision")
-  part_idx = bisect.bisect_right( np.ravel(X[:,t.dec.feature]), t.dec.threshold)
+  #print("Partitioning X and y by decision")
+  part_idx = bisect.bisect_right( np.ravel(X_sort[:,t.dec.feature]), t.dec.threshold)
+  print("Partition index: " + str(part_idx))
 
   #print("X, y less than")
-  X_le = X[:part_idx]
-  y_le = y[:part_idx]
+  X_le = X_sort[:part_idx]
+  y_le = y_sort[:part_idx]
+  #print("LE size ", X_le.shape, y_le.shape)
   #print(X_le, y_le)
 
   #print("X, y greater than")
-  X_ge = X[part_idx:]
-  y_ge = y[part_idx:]
+  X_ge = X_sort[part_idx:]
+  y_ge = y_sort[part_idx:]
+  #print("GE size ", X_ge.shape, y_ge.shape)
   #print(X_ge, y_ge)
 
+  print("Building left subtree")
   t.le = buildTree(X_le, y_le, depth-1)
+  print("Building right subtree")
   t.ge = buildTree(X_ge, y_ge, depth-1)
 
-  print("Stepping up")
+  #print("Stepping up")
   return t
 
 def bestDecision(X, y):
@@ -262,8 +269,7 @@ def main():
   #norm = findNormalizationVector(X_train)
 
   #Build stump decision tree
-  d = buildTree(X_train, y_train, depth=2)
-
+  d = buildTree(X_train, y_train, depth=1)
 
 if __name__ == "__main__":
   main()
