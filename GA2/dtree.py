@@ -12,13 +12,30 @@ matplotlib.use('Agg')
 #import matplotlib.pyplot as plt
 #from matplotlib.backends.backend_pdf import PdfPages
 
-class Tree(object):
+#Decision tree class 
+#If dec is None, the node is a leaf node 
+class DTree(object):
     def __init__(self):
-        self.left = None
-        self.right = None
-        self.data = None
+        self.le = None          #Subtree for less than decision
+        self.ge = None          #Subtree for greater than decision
+        self.dec = None         #Decision for this step of tree
+        self.prediction = None  #Predecition if a leaf node
 
+
+#A namedtuple to represent a continuous threshold decision2
 Decision = namedtuple('Decision', ['feature', 'threshold'])
+
+
+#TODO implement function
+#Description:
+#  Returns the entropy information gain of a decision on a data set
+#Parameters:  
+#  X: Matrix of considered examples, sorted ascendingly by decision feature
+#  y: Column matrix of class labels corresponding to each row of X
+#  dec: a Decision object to be tested
+#Returns:
+#  A floating point number for the information gain of the decision
+def informationGain(X, y, dec):
 
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
