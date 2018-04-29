@@ -11,8 +11,8 @@ import bisect
 
 import matplotlib
 matplotlib.use('Agg')
-#import matplotlib.pyplot as plt
-#from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 #Decision tree class 
 #If dec is None, the node is a leaf node 
@@ -194,6 +194,20 @@ def loady(fname):
 
   return y
 
+def acc_of_test(decision_tree, X_test, y_test):
+  mistakes = 0
+  total = X_test.shape[0]
+
+  for i in xrange(total):
+    X_ith_row = X_test[i,:].tolist()[0]
+    correct_label = y_test[i,0]
+    if(decision_tree.predict(X_ith_row) != correct_label):
+      mistakes += 1
+
+  acc = 1 - (mistakes / float(total))
+
+  return acc
+
 def main():
   np.set_printoptions(suppress=True)
 
@@ -209,19 +223,21 @@ def main():
   #norm = findNormalizationVector(X_train)
 
   #Build stump decision tree
+  ACCS = []
+  DEPTHS = range(0,6)
   
-  d = buildTree(X_train, y_train, depth=1)
-
-  mistakes = 0
-  total = X_test.shape[0]
-
-  for i in xrange(total):
-    X_ith_row = X_test[i,:].tolist()[0]
-    correct_label = y_test[i,0]
-    if(d.predict(X_ith_row) != correct_label):
-      mistakes += 1
-
-  acc = 1 - (mistakes / float(total))
+  for d in DEPTHS:
+    dec_tree = buildTree(X_train, y_train, depth=d)
+    ACCS.append(acc_of_test(dec_tree, X_test, y_test))
+  
+  fig = plt.figure()
+  plt.xlabel('D')
+  plt.ylabel('Accuracy')
+  plt.plot(DEPTHS, ACCS, label='train')
+  plt.legend(loc='upper right')
+  plt.show()
+  fig.savefig("2_1_Report.png")
+  
 
 
 if __name__ == "__main__":
