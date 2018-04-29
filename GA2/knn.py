@@ -44,10 +44,89 @@ def main():
 	else:
 		print "K = {} : Negative Result".format(k)
 
-	#PLOT THESE AS FUNCTION OF K
-	#TODO PLOTTING TRAINING ERROR (# of mistakes on train)
-	#TODO PLOTTING TEST ERROR (# of mistakes on test)
-	#TODO Leave one out crossvalidation on training set
+	#import pdb; pdb.set_trace()
+
+	#total_rows = train.shape[0]
+	ROW_INDS = filter(lambda x: x%2 == 1, range(1,52))
+	
+	LEAVE_ONE_OUT_ACC_DATA = []
+	TRAIN_ERROR = []
+	TEST_ERROR = []
+	print "Doing reporting"
+	for k_val in ROW_INDS:
+		print "Reporting on k : {}".format(k_val)
+		LEAVE_ONE_OUT_ACC_DATA.append(cross_validation_leave_one(train, y_train, k_val))
+		TRAIN_ERROR.append(find_train_error(normalized_train, y_train, k_val))
+		TEST_ERROR.append(find_test_error(normalized_test, normalized_train, y_test, y_train, k_val))
+
+	fig = plt.figure()
+	plt.xlabel('K')
+	plt.ylabel('Accuracy')
+	plt.plot(ROW_INDS, TRAIN_ERROR, label='train')
+	plt.plot(ROW_INDS, TEST_ERROR, label='test')
+	plt.plot(ROW_INDS, LEAVE_ONE_OUT_ACC_DATA, label='leave_one_out')
+	plt.legend(loc='upper right')
+	plt.show()
+	fig.savefig("1_2_Report.png")
+
+
+#TODO Make KNN Model class so I don't have to lug around normalized_train and y_train when doing test error
+def find_test_error(normalized_test, normalized_train, y_test, y_train, k_val):
+	num_mistakes = 0.0
+	total_rows = float(normalized_test.shape[0])
+	for i in xrange(normalized_test.shape[0] - 1):
+		correct_label = y_test[i,0]
+		point = normalized_test[i,:].tolist()[0]
+
+		knn_res = knn_classify(normalized_train, y_train, point, k_val)
+
+		if(correct_label != knn_res):
+			num_mistakes += 1
+	
+	return 1 - (num_mistakes / total_rows)
+
+"""
+	Expects normalized data
+"""
+def find_train_error(data, labels, k):
+	num_mistakes = 0.0
+	total_rows = float(data.shape[0])
+	for i in xrange(data.shape[0] - 1):
+		correct_label = labels[i,0]
+		point = data[i,:].tolist()[0]
+
+		knn_res = knn_classify(data, labels, point, k)
+
+		if(correct_label != knn_res):
+			num_mistakes += 1
+	
+	return 1 - (num_mistakes / total_rows)
+
+"""
+	Expects normalized data
+"""
+def cross_validation_leave_one(train_data, labels, k):
+	num_mistakes = 0.0
+	total_rows = float(train_data.shape[0])
+	for i in xrange(train_data.shape[0] - 1):
+		correct_label = labels[i,0]
+		point = train_data[i,:].tolist()[0]
+
+		#Leave one out process
+		left_one_out_data, left_one_out_labels = leave_one_out(train_data, labels, i)
+
+		knn_res = knn_classify(left_one_out_data, left_one_out_labels, point, k)
+
+		if(correct_label != knn_res):
+			num_mistakes += 1
+	
+	return 1 - (num_mistakes / total_rows)
+
+def leave_one_out(data_matrix, labels, index):
+	ret_data = np.delete(data_matrix.copy(), (index), axis=0)
+	ret_labels = np.delete(labels.copy(), (index), axis=0)
+
+	return (ret_data, ret_labels)
 
 """
 	Expects normalized data, returns -1 or 1 classifier
