@@ -26,17 +26,6 @@ class DTree(object):
 Decision = collections.namedtuple('Decision', ['feature', 'threshold'])
 
 
-#TODO implement function
-#Description:
-#  Returns the entropy information gain of a decision on a data set
-#Parameters:  
-#  X: Matrix of considered examples, sorted ascendingly by decision feature
-#  y: Column matrix of class labels corresponding to each row of X
-#  dec: a Decision object to be tested
-#Returns:
-#  A floating point number for the information gain of the decision
-#def informationGain(X, y, dec):
-
 #Build a decision tree for a data set
 #Desicions are selected by maximization of entropy based information gain
 def buildTree(X, y, depth):
@@ -128,6 +117,19 @@ def sameLabel(y):
 #  Xy_sort = numpy.sort(combine, axis=0, order= 
   
   
+def informationGain(X, y, dec):
+# get entropy ofnode, then both children and calc total gain
+ 
+parentEnt = 0.0
+lChildEnt = 0.0
+rChildEnt = 0.0
+
+ return (parentEnt-lChildEnt-rChildEnt) #return the resulting info gainz
+
+
+def getEntropy(prob1,prob2):
+  return (-1 * prob1 * np.log2(prob1)) - (prob2 * np.log2(prob2))
+
 
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
