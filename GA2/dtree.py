@@ -6,6 +6,8 @@ import pandas
 import csv
 import math
 import collections
+import bisect
+
 
 import matplotlib
 matplotlib.use('Agg')
@@ -43,27 +45,25 @@ def buildTree(X, y, depth):
   t.dec = bestDecision(X, y)
 
   #Sort X and y by ascending values of the decision feature
-  s_ind = np.argsort(X,[:,t.dec.feature])
-  X_sort = X[s_ind]
-  y_sort = y[s_ind]
+  s_idx = np.argsort(X[:,t.dec.feature])
+  X_sort = X[s_idx]
+  y_sort = y[s_idx]
 
   #Partition X and y by the decision
-
   
+  #TODO verify that this splits correctly
+  part_idx = bisect.bisect_right(X[:,t.dec.feature], t.dec.threshold)
 
-  X_le = 
-  y_le = 
+  X_le = X[:part_idx]
+  y_le = y[:part_idx]
 
-  X_ge = 
-  y_ge = 
+  X_ge = X[part_idx:]
+  y_ge = y[part_idx:]
 
   t.le = buildTree(X_le, y_le, depth-1)
   t.ge = buildTree(X_ge, y_ge, depth-1)
 
   return t
-  
-
-
 
 def bestDecision(X, y):
   best_gain = 0.0
@@ -71,7 +71,7 @@ def bestDecision(X, y):
   #For each column (feature)
   for col in range(X.shape[1]):
     #Sort X and y by ascending values of that column
-    s_ind = np.argsort(X,[:,col])
+    s_ind = np.argsort(X[:,col])
     X_sort = X[s_ind]
     y_sort = y[s_ind]
 
@@ -110,21 +110,14 @@ def sameLabel(y):
 
   return True
 
-#Sort X and y data ascendingly by values of a specified feature
-#Returns a sorted matrix [X y] which will need to be split 
-#def sortByFeature(X, y, feat):
-#  combine = numpy.append(X, y, axis=1)
-#  Xy_sort = numpy.sort(combine, axis=0, order= 
-  
-  
 def informationGain(X, y, dec):
-# get entropy ofnode, then both children and calc total gain
+  # get entropy ofnode, then both children and calc total gain
  
-parentEnt = 0.0
-lChildEnt = 0.0
-rChildEnt = 0.0
+  parentEnt = 0.0
+  lChildEnt = 0.0
+  rChildEnt = 0.0
 
- return (parentEnt-lChildEnt-rChildEnt) #return the resulting info gainz
+  return (parentEnt-lChildEnt-rChildEnt) #return the resulting info gainz
 
 
 def getEntropy(prob1,prob2):
@@ -202,6 +195,11 @@ def main():
 
   print(X_train)
   print(y_train)
+
+  #norm = findNormalizationVector(X_train)
+
+  #Build stump decision tree
+  d = buildTree(X, y, depth=1)
 
 
 if __name__ == "__main__":
