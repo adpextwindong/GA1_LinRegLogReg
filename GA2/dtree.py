@@ -36,6 +36,17 @@ Decision = namedtuple('Decision', ['feature', 'threshold'])
 #Returns:
 #  A floating point number for the information gain of the decision
 def informationGain(X, y, dec):
+# get entropy ofnode, then both children and calc total gain
+ 
+parentEnt = 0.0
+lChildEnt = 0.0
+rChildEnt = 0.0
+
+ return (parentEnt-lChildEnt-rChildEnt) #return the resulting info gainz
+
+
+def getEntropy(prob1,prob2):
+  return (-1 * prob1 * np.log2(prob1)) - (prob2 * np.log2(prob2))
 
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
