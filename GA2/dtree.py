@@ -23,7 +23,7 @@ class DTree(object):
 
 
 #A namedtuple to represent a continuous threshold decision2
-Decision = namedtuple('Decision', ['feature', 'threshold'])
+Decision = collections.namedtuple('Decision', ['feature', 'threshold'])
 
 
 #TODO implement function
@@ -35,7 +35,99 @@ Decision = namedtuple('Decision', ['feature', 'threshold'])
 #  dec: a Decision object to be tested
 #Returns:
 #  A floating point number for the information gain of the decision
-def informationGain(X, y, dec):
+#def informationGain(X, y, dec):
+
+#Build a decision tree for a data set
+#Desicions are selected by maximization of entropy based information gain
+def buildTree(X, y, depth):
+  t = DTree()
+  #Base case: partition is uniform
+  if (sameLabel(y)):
+    t.prediction = y[0,0]
+    return t
+
+  #Base case: depth 0
+  if (depth == 0):
+    t.prediction = majority(y)
+    return t
+
+  t.dec = bestDecision(X, y)
+
+  #Sort X and y by ascending values of the decision feature
+  s_ind = np.argsort(X,[:,t.dec.feature])
+  X_sort = X[s_ind]
+  y_sort = y[s_ind]
+
+  #Partition X and y by the decision
+
+  
+
+  X_le = 
+  y_le = 
+
+  X_ge = 
+  y_ge = 
+
+  t.le = buildTree(X_le, y_le, depth-1)
+  t.ge = buildTree(X_ge, y_ge, depth-1)
+
+  return t
+  
+
+
+
+def bestDecision(X, y):
+  best_gain = 0.0
+  best_dec = None
+  #For each column (feature)
+  for col in range(X.shape[1]):
+    #Sort X and y by ascending values of that column
+    s_ind = np.argsort(X,[:,col])
+    X_sort = X[s_ind]
+    y_sort = y[s_ind]
+
+    #For each pair of adjacent values in the column
+    for row  in range(X.shape[0]-1):
+      if (y[row, 0] != y[row+1, 0]):
+        thr = (X[row, col] + X[row+1, col]) / 2.0
+        dec = Decision(feature=col, threshold=thr)
+        gain = informationGain(X, y, dec)
+
+        if (gain > best_gain):
+          best_gain = gain
+          best_dec = dec
+
+  return best_dec
+  
+
+def majority(y):
+  countp = 0
+  countn = 0
+  for i in range(y.size):
+    if (y[i,0] == 1):
+      countp += 1;
+    else:
+      countn += 1;
+
+  if (countp > countn):
+    return 1
+  else:
+    return -1
+
+def sameLabel(y):
+  for i in range(y.size):
+    if (y[i,0] != y[0,0]):
+      return False
+
+  return True
+
+#Sort X and y data ascendingly by values of a specified feature
+#Returns a sorted matrix [X y] which will need to be split 
+#def sortByFeature(X, y, feat):
+#  combine = numpy.append(X, y, axis=1)
+#  Xy_sort = numpy.sort(combine, axis=0, order= 
+  
+  
 
 def printbold(text):
 	print("\033[1m" + text + "\033[0m")
