@@ -23,7 +23,7 @@ class DTree(object):
 
 
 #A namedtuple to represent a continuous threshold decision2
-Decision = namedtuple('Decision', ['feature', 'threshold'])
+Decision = collections.namedtuple('Decision', ['feature', 'threshold'])
 
 
 #TODO implement function
