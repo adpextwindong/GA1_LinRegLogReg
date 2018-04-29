@@ -22,7 +22,14 @@ class DTree(object):
         self.ge = None          #Subtree for greater than decision
         self.dec = None         #Decision for this step of tree
         self.prediction = None  #Predecition if a leaf node
-
+    def predict(self, x_row):
+      if (self.prediction != None):
+        return self.prediction
+      else:
+        if (x_row[self.dec.feature] >= self.dec.threshold):
+          return self.ge.predict(x_row)
+        else:
+          return self.le.predict(x_row)
 
 #A namedtuple to represent a continuous threshold decision2
 Decision = collections.namedtuple('Decision', ['feature', 'threshold'])
@@ -193,13 +200,28 @@ def main():
   X_train = loadX('data/knn_train.csv')
   y_train = loady('data/knn_train.csv')
 
-  print(X_train)
-  print(y_train)
+  X_test = loadX('data/knn_test.csv')
+  y_test = loady('data/knn_test.csv')
+
+  #print(X_train)
+  #print(y_train)
 
   #norm = findNormalizationVector(X_train)
 
   #Build stump decision tree
-  d = buildTree(X, y, depth=1)
+  
+  d = buildTree(X_train, y_train, depth=1)
+
+  mistakes = 0
+  total = X_test.shape[0]
+
+  for i in xrange(total):
+    X_ith_row = X_test[i,:].tolist()[0]
+    correct_label = y_test[i,0]
+    if(d.predict(X_ith_row) != correct_label):
+      mistakes += 1
+
+  acc = 1 - (mistakes / float(total))
 
 
 if __name__ == "__main__":
