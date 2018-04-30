@@ -38,24 +38,24 @@ Decision = collections.namedtuple('Decision', ['feature', 'threshold'])
 #Build a decision tree for a data set
 #Desicions are selected by maximization of entropy based information gain
 def buildTree(X, y, depth):
-  print("Building tree. Depth left: " + str(depth))
+  #print("Building tree. Depth left: " + str(depth))
   #print("Current data set: ", X, y)
   t = DTree()
   #Base case: partition is uniform
   if (sameLabel(y)):
-    print("Same label termination")
+    #print("Same label termination")
     t.prediction = y[0,0]
-    print("Prediction: " + str(t.prediction))
+    #print("Prediction: " + str(t.prediction))
     return t
 
   #Base case: depth 0
   if (depth == 0):
-    print("Max depth reached termination")
+    #print("Max depth reached termination")
     t.prediction = majority(y)
-    print("Prediction: " + str(t.prediction))
+    #print("Prediction: " + str(t.prediction))
     return t
 
-  print("Finding best decision")
+  #print("Finding best decision")
   t.dec = bestDecision(X, y)
 
   #Sort X and y by ascending values of the decision feature
@@ -67,7 +67,7 @@ def buildTree(X, y, depth):
   #Partition X and y by the decision
   #print("Partitioning X and y by decision")
   part_idx = bisect.bisect_right( np.ravel(X_sort[:,t.dec.feature]), t.dec.threshold)
-  print("Partition index: " + str(part_idx))
+  #print("Partition index: " + str(part_idx))
 
   #print("X, y less than")
   X_le = X_sort[:part_idx]
@@ -81,9 +81,9 @@ def buildTree(X, y, depth):
   #print("GE size ", X_ge.shape, y_ge.shape)
   #print(X_ge, y_ge)
 
-  print("Building left subtree")
+  #print("Building left subtree")
   t.le = buildTree(X_le, y_le, depth-1)
-  print("Building right subtree")
+  #print("Building right subtree")
   t.ge = buildTree(X_ge, y_ge, depth-1)
 
   #print("Stepping up")
@@ -119,7 +119,7 @@ def bestDecision(X, y):
           best_gain = gain
           best_dec = dec
 
-  print("Best decision: ", best_dec, "With gain: " + str(best_gain))
+  #print("Best decision: ", best_dec, "With gain: " + str(best_gain))
   return best_dec
   
 
@@ -292,6 +292,7 @@ def main():
   DEPTHS = range(0,7)
   
   for d in DEPTHS:
+    print "Building tree depth d:{}".format(d)
     dec_tree = buildTree(X_train, y_train, depth=d)
     TRAIN_ACCS.append(acc_of_test(dec_tree, X_train, y_train))
     TEST_ACCS.append(acc_of_test(dec_tree, X_test, y_test))
