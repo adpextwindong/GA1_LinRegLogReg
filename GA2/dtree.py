@@ -284,21 +284,30 @@ def main():
   X_train = loadX('data/knn_train.csv')
   y_train = loady('data/knn_train.csv')
 
-  #TODO Build stump decision tree
-  ACCS = []
-  DEPTHS = range(0,6)
+  X_test = loadX('data/knn_test.csv')
+  y_test = loady('data/knn_test.csv')
+
+  TRAIN_ACCS = []
+  TEST_ACCS = []
+  DEPTHS = range(0,7)
   
   for d in DEPTHS:
     dec_tree = buildTree(X_train, y_train, depth=d)
-    ACCS.append(acc_of_test(dec_tree, X_test, y_test))
+    TRAIN_ACCS.append(acc_of_test(dec_tree, X_train, y_train))
+    TEST_ACCS.append(acc_of_test(dec_tree, X_test, y_test))
   
   fig = plt.figure()
   plt.xlabel('D')
   plt.ylabel('Accuracy')
-  plt.plot(DEPTHS, ACCS, label='train')
-  plt.legend(loc='upper right')
+  plt.plot(DEPTHS, TRAIN_ACCS, label='train')
+  plt.plot(DEPTHS, TEST_ACCS, label='test') 
+  plt.legend(loc='upper left')
   plt.show()
   fig.savefig("2_1_Report.png")
+
+  print "\n ACCURACY DATA"
+  for d in DEPTHS:
+    print "d = {} Train Acc = {} Test Acc = {}".format(d, TRAIN_ACCS[d] , TEST_ACCS[d])
 
 if __name__ == "__main__":
   main()
