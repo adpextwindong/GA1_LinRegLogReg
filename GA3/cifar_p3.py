@@ -1,3 +1,12 @@
+"""Usage:
+	opgg_leaderboard_scraper.py <epochs> <learning_rate>
+
+Arguments:
+	epochs: INTEGER
+	learning_rate: FLOAT
+"""
+from docopt import docopt
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,8 +18,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+neccesary_args = ['<epochs>','<learning_rate>']
+args = docopt(__doc__, version='1.0.0rc2')
+keys = args.keys()
+
+for k in neccesary_args:
+    if k not in keys:
+        print "MISSING KEY"
+        exit(1)
+
+NUM_OF_EPOCHS = int(args['<epochs>'])
+LEARNING_RATE = float(args['<learning_rate>'])
+
 cuda = torch.cuda.is_available()
-print('Using PyTorch version:', torch.__version__, 'CUDA:', cuda)
+#print('Using PyTorch version:', torch.__version__, 'CUDA:', cuda)
 
 #torch.manual_seed(42)
 #if cuda:
@@ -35,21 +56,7 @@ validation_loader = torch.utils.data.DataLoader(
                    ])),
     batch_size=batch_size, shuffle=False, **kwargs)
 
-for (X_train, y_train) in train_loader:
-    print('X_train:', X_train.size(), 'type:', X_train.type())
-    print('y_train:', y_train.size(), 'type:', y_train.type())
-    break
 
-pltsize=1
-plt.figure(figsize=(10*pltsize, pltsize))
-
-for i in range(10):
-    plt.subplot(1,10,i+1)
-    plt.axis('off')
-    plt.imshow(X_train[i,0,:,:].numpy().reshape(32,32), cmap="gray")
-    plt.imshow(X_train[i,1,:,:].numpy().reshape(32,32), cmap="gray")
-    plt.imshow(X_train[i,2,:,:].numpy().reshape(32,32), cmap="gray")
-    plt.title('Class: '+str(y_train[i]))
 
 class Net(nn.Module):
     def __init__(self):
@@ -73,10 +80,9 @@ model = Net()
 if cuda:
     model.cuda()
     
-optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.5)
+optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.5)
 
-print(model)
-
+#print(model)
 def train(epoch, log_interval=100):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -108,23 +114,21 @@ def validate(loss_vector, accuracy_vector):
     val_loss /= len(validation_loader)
     loss_vector.append(val_loss)
 
-    accuracy = 100. * correct / len(validation_loader.dataset)
+    accuracy = 100. * correct / float(len(validation_loader.dataset))
     accuracy_vector.append(accuracy)
     
-    print('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+    print('Validation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         val_loss, correct, len(validation_loader.dataset), accuracy))
 
-epochs = 10
+epochs = NUM_OF_EPOCHS
 
 lossv, accv = [], []
 for epoch in range(1, epochs + 1):
-    train(epoch)
+    if(epoch < 4):
+        train(epoch)
     validate(lossv, accv)
 
-plt.figure(figsize=(5,3))
-plt.plot(np.arange(1,epochs+1), lossv)
-plt.title('validation loss')
+print "\n"
+print zip(range(1, epochs + 1), zip([float(x) for x in lossv] , [float(x) for x in accv]))
 
-plt.figure(figsize=(5,3))
-plt.plot(np.arange(1,epochs+1), accv)
-plt.title('validation accuracy');
+
