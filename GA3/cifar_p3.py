@@ -66,7 +66,8 @@ class Net(nn.Module):
         x = self.fc1_drop(x)
         x = F.sigmoid(self.fc2(x))
         x = self.fc2_drop(x)
-        return F.log_softmax(self.fc3(x))
+        
+        return F.log_softmax(self.fc3(x), dim=1)
 
 model = Net()
 if cuda:
@@ -90,7 +91,7 @@ def train(epoch, log_interval=100):
         if batch_idx % log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.data[0]))
+                100. * batch_idx / len(train_loader), loss))
 
 def validate(loss_vector, accuracy_vector):
     model.eval()
@@ -98,9 +99,9 @@ def validate(loss_vector, accuracy_vector):
     for data, target in validation_loader:
         if cuda:
             data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile=True), Variable(target)
+        data, target = Variable(data), Variable(target)
         output = model(data)
-        val_loss += F.nll_loss(output, target).data[0]
+        val_loss += F.nll_loss(output, target)
         pred = output.data.max(1)[1] # get the index of the max log-probability
         correct += pred.eq(target.data).cpu().sum()
 
