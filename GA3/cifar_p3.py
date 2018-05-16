@@ -1,11 +1,11 @@
 """Usage:
-	cifar_p3.py <epochs> <learning_rate>
+	cifar_p3.py <activation> <epochs> <learning_rate>
 
-Arguments:
-    activation: SIG - Sigmoid Function
-        RELU - ReLu Activation Function
-	epochs: INTEGER
-	learning_rate: FLOAT
+    Arguments:
+        activation: SIG - Sigmoid Function
+            RELU - ReLu Activation Function
+        epochs: INTEGER
+    	learning_rate: FLOAT
 """
 from docopt import docopt
 print(docopt(__doc__, version='1.0.0rc2'))
