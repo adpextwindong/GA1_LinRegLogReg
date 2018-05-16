@@ -45,7 +45,7 @@ cuda = torch.cuda.is_available()
 #if cuda:
 #    torch.cuda.manual_seed(42)
 
-batch_size = 20
+batch_size = 100
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
@@ -169,11 +169,9 @@ epochs = NUM_OF_EPOCHS
 
 lossv, accv = [], []
 for epoch in range(1, epochs + 1):
-    if(epoch < 5):
-        train(epoch)
+    train(epoch)
     validate(lossv, accv)
 
-print "\n"
-print zip(range(1, epochs + 1), zip([float(x) for x in lossv] , [float(x) for x in accv]))
-
-
+print [float(x) for x in lossv]
+print [float(x) for x in accv]
+#print zip(range(1, epochs + 1), zip([float(x) for x in lossv] , [float(x) for x in accv]))
