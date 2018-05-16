@@ -1,11 +1,15 @@
 """Usage:
-	cifar_p3.py <activation> <epochs> <learning_rate>
+	cifar_p3.py <depth> <activation> <epochs> <learning_rate> <dropout> <momentum>
 
     Arguments:
+        depth: INT - 1 as Single or a value > 1 for multilayer
         activation: SIG - Sigmoid Function
             RELU - ReLu Activation Function
         epochs: INTEGER
     	learning_rate: FLOAT
+        dropout: FLOAT
+        momentum: FLOAT
+
 """
 from docopt import docopt
 print(docopt(__doc__, version='1.0.0rc2'))
@@ -38,6 +42,12 @@ if(args['<activation>'] not in ['RELU', 'SIG']):
 NUM_OF_EPOCHS = int(args['<epochs>'])
 LEARNING_RATE = float(args['<learning_rate>'])
 ACTIVATION = args['<activation>']
+DROPOUT = float(args['<dropout>'])
+MOMENTUM = float(args['<momentum>'])
+#TODO figure out how to deal with this
+#        weight_decay: FLOAT
+#WEIGHT_DECAY = float(args['<weight_decay>'])
+DEPTH = int(args['<depth>'])
 
 cuda = torch.cuda.is_available()
 #print('Using PyTorch version:', torch.__version__, 'CUDA:', cuda)
@@ -83,7 +93,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.fc1 = nn.Linear(32*32*3, 100)
-        self.fc1_drop = nn.Dropout(0.2)
+        self.fc1_drop = nn.Dropout(DROPOUT)
         self.fc2 = nn.Linear(100, 10)
 
     def forward(self, x):
@@ -98,7 +108,7 @@ class ReLuNet(nn.Module):
     def __init__(self):
         super(ReLuNet, self).__init__()
         self.fc1 = nn.Linear(32*32*3, 100)
-        self.fc1_drop = nn.Dropout(0.2)
+        self.fc1_drop = nn.Dropout(DROPOUT)
         self.fc2 = nn.Linear(100, 10)
 
     def forward(self, x):
@@ -113,9 +123,9 @@ class TwoHidLayerNet(nn.Module):
     def __init__(self):
         super(TwoHidLayerNet, self).__init__()
         self.fc1 = nn.Linear(32*32*3, 50)
-        self.fc1_drop = nn.Dropout(0.2)
+        self.fc1_drop = nn.Dropout(DROPOUT)
         self.fc2 = nn.Linear(50, 50)
-        self.fc2_drop = nn.Dropout(0.2)
+        self.fc2_drop = nn.Dropout(DROPOUT)
         self.fc3 = nn.Linear(50, 10)
 
     def forward(self, x):
@@ -126,19 +136,46 @@ class TwoHidLayerNet(nn.Module):
         x = self.fc2_drop(x)
 
         return F.log_softmax(self.fc3(x), dim=1)
+
+class TwoHidLayerReLuNet(nn.Module):
+    def __init__(self):
+        super(TwoHidLayerNet, self).__init__()
+        self.fc1 = nn.Linear(32*32*3, 50)
+        self.fc1_drop = nn.Dropout(DROPOUT)
+        self.fc2 = nn.Linear(50, 50)
+        self.fc2_drop = nn.Dropout(DROPOUT)
+        self.fc3 = nn.Linear(50, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 3*32*32)
+        x = F.relu(self.fc1(x))
+        x = self.fc1_drop(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc2_drop(x)
+
+        return F.log_softmax(self.fc3(x), dim=1)
         
-if(ACTIVATION == 'SIG'):
-    model = Net()
-elif(ACTIVATION == 'RELU'):
-    model = ReLuNet()
+if(DEPTH == 1):
+    if(ACTIVATION == 'SIG'):
+        model = Net()
+    elif(ACTIVATION == 'RELU'):
+        model = ReLuNet()
+    else:
+        print "You shouldn't be here"
+        exit(1)
 else:
-    print "You shouldn't be here"
-    exit(1)
+    if(ACTIVATION == 'SIG'):
+        model = TwoHidLayerNet()
+    elif(ACTIVATION == 'RELU'):
+        model = TwoHidLayerReLuNet()
+    else:
+        print "You shouldn't be here"
+        exit(1)
 
 if cuda:
     model.cuda()
     
-optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.5)
+optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
 #print(model)
 def train(epoch, log_interval=100):
@@ -210,14 +247,8 @@ for epoch in range(1, epochs + 1):
     validate(val_lossv, val_accv)
 testidate(test_lossv, test_accv)
 
+print [float(x) for x in val_lossv]
+print [float(x) for x in val_accv]
 
-
-#print "\n"
-#print zip(range(1, epochs + 1), zip([float(x) for x in val_lossv] , [float(x) for x in val_accv]))
-
-#print "\n"
-#print zip(range(1, epochs + 1), zip([float(x) for x in test_lossv] , [float(x) for x in test_accv]))
-
-print [float(x) for x in lossv]
-print [float(x) for x in accv]
-#print zip(range(1, epochs + 1), zip([float(x) for x in lossv] , [float(x) for x in accv]))
+print [float(x) for x in test_lossv]
+print [float(x) for x in test_accv]
