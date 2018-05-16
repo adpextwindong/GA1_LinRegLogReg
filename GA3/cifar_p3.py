@@ -169,7 +169,7 @@ epochs = NUM_OF_EPOCHS
 
 lossv, accv = [], []
 for epoch in range(1, epochs + 1):
-    if(epoch < 4):
+    if(epoch < 5):
         train(epoch)
     validate(lossv, accv)
 
