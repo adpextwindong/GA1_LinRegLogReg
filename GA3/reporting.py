@@ -39,53 +39,25 @@ ax = plt.subplot(111)
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 for d in the_data:
-    d_label = d.Activation + ' ' + str(d.Learning_Rate)
+    d_label = d.Activation + ' ' + str(d.Momentum)
     plt.plot(ROW_INDS, d.Loss_Data, label=d_label)
 # Put a legend below current axis
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.175),
           fancybox=True, shadow=True, ncol=3)
 
 plt.show()
-fig.savefig("1_1_Report_Loss.png")
+fig.savefig("3_Report_Momentum_Loss.png")
 
 fig = plt.figure()
 ax = plt.subplot(111)
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
 for d in the_data:
-    d_label = d.Activation + ' ' + str(d.Learning_Rate)
+    d_label = d.Activation + ' ' + str(d.Momentum)
     plt.plot(ROW_INDS, d.Accuracy_Data, label=d_label)
 # Put a legend below current axis
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.175),
           fancybox=True, shadow=True, ncol=3)
 
 plt.show()
-fig.savefig("1_2_Report_Accuracy.png")
-
-fig = plt.figure()
-ax = plt.subplot(111)
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-for d in the_data:
-    d_label = d.Activation + ' ' + str(d.Dropout)
-    plt.plot(ROW_INDS, d.Loss_Data, label=d_label)
-# Put a legend below current axis
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.175),
-          fancybox=True, shadow=True, ncol=3)
-
-plt.show()
-fig.savefig("3_Report_Loss.png")
-
-fig = plt.figure()
-ax = plt.subplot(111)
-plt.xlabel('Epochs')
-plt.ylabel('Accuracy')
-for d in the_data:
-    d_label = d.Activation + ' ' + str(d.Dropout)
-    plt.plot(ROW_INDS, d.Accuracy_Data, label=d_label)
-# Put a legend below current axis
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.175),
-          fancybox=True, shadow=True, ncol=3)
-
-plt.show()
-fig.savefig("3_Report_Accuracy.png")
+fig.savefig("3_Report_Momentum_Accuracy.png")
