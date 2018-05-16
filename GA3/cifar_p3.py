@@ -2,10 +2,13 @@
 	cifar_p3.py <epochs> <learning_rate>
 
 Arguments:
+    activation: SIG - Sigmoid Function
+        RELU - ReLu Activation Function
 	epochs: INTEGER
 	learning_rate: FLOAT
 """
 from docopt import docopt
+print(docopt(__doc__, version='1.0.0rc2'))
 
 import torch
 import torch.nn as nn
@@ -27,8 +30,13 @@ for k in neccesary_args:
         print "MISSING KEY"
         exit(1)
 
+if(args['<activation>'] not in ['RELU', 'SIG']):
+    print "Nonvalid activation function"
+    exit(1)
+
 NUM_OF_EPOCHS = int(args['<epochs>'])
 LEARNING_RATE = float(args['<learning_rate>'])
+ACTIVATION = args['<activation>']
 
 cuda = torch.cuda.is_available()
 #print('Using PyTorch version:', torch.__version__, 'CUDA:', cuda)
@@ -105,8 +113,15 @@ class TwoHidLayerNet(nn.Module):
         x = self.fc2_drop(x)
 
         return F.log_softmax(self.fc3(x), dim=1)
+        
+if(ACTIVATION == 'SIG'):
+    model = Net()
+elif(ACTIVATION == 'RELU'):
+    model = ReLuNet()
+else:
+    print "You shouldn't be here"
+    exit(1)
 
-model = Net()
 if cuda:
     model.cuda()
     
