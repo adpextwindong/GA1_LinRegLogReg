@@ -1,5 +1,5 @@
 """Usage:
-	opgg_leaderboard_scraper.py <epochs> <learning_rate>
+	cifar_p3.py <epochs> <learning_rate>
 
 Arguments:
 	epochs: INTEGER
@@ -63,9 +63,39 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.fc1 = nn.Linear(32*32*3, 100)
         self.fc1_drop = nn.Dropout(0.2)
-        self.fc2 = nn.Linear(100, 100)
+        self.fc2 = nn.Linear(100, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 3*32*32)
+        x = F.sigmoid(self.fc1(x))
+        x = self.fc1_drop(x)
+        
+        return F.log_softmax(self.fc2(x), dim=1)
+
+#ReLu stuff
+class ReLuNet(nn.Module):
+    def __init__(self):
+        super(ReLuNet, self).__init__()
+        self.fc1 = nn.Linear(32*32*3, 100)
+        self.fc1_drop = nn.Dropout(0.2)
+        self.fc2 = nn.Linear(100, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 3*32*32)
+        x = F.relu(self.fc1(x))
+        x = self.fc1_drop(x)
+
+        return F.log_softmax(self.fc2(x), dim=1)
+        
+#Two Hidden Layer stuff
+class TwoHidLayerNet(nn.Module):
+    def __init__(self):
+        super(TwoHidLayerNet, self).__init__()
+        self.fc1 = nn.Linear(32*32*3, 50)
+        self.fc1_drop = nn.Dropout(0.2)
+        self.fc2 = nn.Linear(50, 50)
         self.fc2_drop = nn.Dropout(0.2)
-        self.fc3 = nn.Linear(100, 10)
+        self.fc3 = nn.Linear(50, 10)
 
     def forward(self, x):
         x = x.view(-1, 3*32*32)
@@ -73,27 +103,8 @@ class Net(nn.Module):
         x = self.fc1_drop(x)
         x = F.sigmoid(self.fc2(x))
         x = self.fc2_drop(x)
-        
-        return F.log_softmax(self.fc3(x), dim=1)
-#ReLu stuff
-class ReLuNet(nn.Module):
-    def __init__(self):
-        super(ReLuNet, self).__init__()
-        self.fc1 = nn.Linear(32*32*3, 100)
-        self.fc1_drop = nn.Dropout(0.2)
-        self.fc2 = nn.Linear(100, 100)
-        self.fc2_drop = nn.Dropout(0.2)
-        self.fc3 = nn.Linear(100, 10)
-
-    def forward(self, x):
-        x = x.view(-1, 3*32*32)
-        x = F.relu(self.fc1(x))
-        x = self.fc1_drop(x)
-        x = F.relu(self.fc2(x))
-        x = self.fc2_drop(x)
 
         return F.log_softmax(self.fc3(x), dim=1)
-        
 
 model = Net()
 if cuda:
