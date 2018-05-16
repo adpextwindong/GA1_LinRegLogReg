@@ -1,15 +1,15 @@
 """Usage:
-	cifar_p3.py <depth> <activation> <epochs> <learning_rate> <dropout> <momentum>
+	cifar_p3.py <depth> <activation> <epochs> <learning_rate> <dropout> <momentum> <weight_decay>
 
     Arguments:
         depth: INT - 1 as Single or a value > 1 for multilayer
         activation: SIG - Sigmoid Function
             RELU - ReLu Activation Function
         epochs: INTEGER
-    	learning_rate: FLOAT
+        learning_rate: FLOAT
         dropout: FLOAT
         momentum: FLOAT
-
+        weight_decay: FLOAT
 """
 from docopt import docopt
 print(docopt(__doc__, version='1.0.0rc2'))
@@ -44,9 +44,7 @@ LEARNING_RATE = float(args['<learning_rate>'])
 ACTIVATION = args['<activation>']
 DROPOUT = float(args['<dropout>'])
 MOMENTUM = float(args['<momentum>'])
-#TODO figure out how to deal with this
-#        weight_decay: FLOAT
-#WEIGHT_DECAY = float(args['<weight_decay>'])
+WEIGHT_DECAY = float(args['<weight_decay>'])
 DEPTH = int(args['<depth>'])
 
 cuda = torch.cuda.is_available()
@@ -175,7 +173,7 @@ else:
 if cuda:
     model.cuda()
     
-optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
+optimizer = optim.SGD(model.parameters(), weight_decay=WEIGHT_DECAY, lr=LEARNING_RATE, momentum=MOMENTUM)
 
 #print(model)
 def train(epoch, log_interval=100):

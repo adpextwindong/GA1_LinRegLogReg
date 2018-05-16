@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from collections import namedtuple
 
-CifarData = namedtuple('CifarData', ['Depth','Activation','Epochs','Learning_Rate', 'Dropout','Momentum', 'Weight_Decay', 'Loss_Data', 'Accuracy_Data','Final_Loss', 'Final_Accuracy'])
+CifarData = namedtuple('CifarData', ['Depth','Activation','Epochs','Learning_Rate', 'Dropout','Momentum', 'Loss_Data', 'Accuracy_Data','Final_Loss', 'Final_Accuracy'])
 
 the_data = []
 for fname in glob.glob(os.getcwd() + '/*out.txt'):
@@ -15,7 +15,7 @@ for fname in glob.glob(os.getcwd() + '/*out.txt'):
     details = fname.split('/')
     details.reverse()
     print details[0].strip('out.txt').split('_')
-    DEPTH, ACTIVATION, EPOCHS, LEARNING_RATE, DROPOUT, MOMENTUM, WEGHT_DECAY, _ = details[0].strip('out.txt').split('_')
+    DEPTH, ACTIVATION, EPOCHS, LEARNING_RATE, DROPOUT, MOMENTUM, _ = details[0].strip('out.txt').split('_')
     EPOCHS = int(EPOCHS)
     LEARNING_RATE = float(LEARNING_RATE)
 
@@ -27,7 +27,7 @@ for fname in glob.glob(os.getcwd() + '/*out.txt'):
         FINAL_ACCURACY = eval(lines[len(lines) - 1].strip('\n'))
         assert(EPOCHS == len(LOSS_DATA))
 
-        the_data.append(CifarData(DEPTH, ACTIVATION, EPOCHS, LEARNING_RATE, DROPOUT,MOMENTUM, WEGHT_DECAY, LOSS_DATA, ACC_DATA, FINAL_LOSS, FINAL_ACCURACY))
+        the_data.append(CifarData(DEPTH, ACTIVATION, EPOCHS, LEARNING_RATE, DROPOUT,MOMENTUM, LOSS_DATA, ACC_DATA, FINAL_LOSS, FINAL_ACCURACY))
 
 print the_data
 
@@ -39,25 +39,25 @@ ax = plt.subplot(111)
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 for d in the_data:
-    d_label = d.Activation + ' ' + str(d.Weight_Decay)
+    d_label = d.Activation + ' ' + str(d.Dropout)
     plt.plot(ROW_INDS, d.Loss_Data, label=d_label)
 # Put a legend below current axis
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.175),
           fancybox=True, shadow=True, ncol=3)
 
 plt.show()
-fig.savefig("3_Weight_Decay_Report_Loss.png")
+fig.savefig("3_Report_Loss.png")
 
 fig = plt.figure()
 ax = plt.subplot(111)
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
 for d in the_data:
-    d_label = d.Activation + ' ' + str(d.Weight_Decay)
+    d_label = d.Activation + ' ' + str(d.Dropout)
     plt.plot(ROW_INDS, d.Accuracy_Data, label=d_label)
 # Put a legend below current axis
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.175),
           fancybox=True, shadow=True, ncol=3)
 
 plt.show()
-fig.savefig("3_Weight_Decay_Report_Accuracy.png")
+fig.savefig("3_Report_Accuracy.png")
