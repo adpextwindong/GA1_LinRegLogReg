@@ -137,7 +137,7 @@ class TwoHidLayerNet(nn.Module):
 
 class TwoHidLayerReLuNet(nn.Module):
     def __init__(self):
-        super(TwoHidLayerNet, self).__init__()
+        super(TwoHidLayerReLuNet, self).__init__()
         self.fc1 = nn.Linear(32*32*3, 50)
         self.fc1_drop = nn.Dropout(DROPOUT)
         self.fc2 = nn.Linear(50, 50)
