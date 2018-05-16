@@ -79,9 +79,13 @@ class ReLuNet(nn.Module):
         self.fc3 = nn.Linear(100, 10)
 
     def forward(self, x):
-        x = F.relu(self.fc1)
+        x = x.view(-1, 3*32*32)
+        x = F.relu(self.fc1(x))
         x = self.fc1_drop(x)
-        return F.relu(self.fc2(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc2_drop(x)
+
+        return F.log_softmax(self.fc3(x), dim=1)
         
 
 model = Net()
