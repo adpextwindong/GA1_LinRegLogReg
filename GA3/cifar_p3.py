@@ -1,11 +1,11 @@
 """Usage:
-	cifar_p3.py <epochs> <learning_rate>
+	cifar_p3.py <activation> <epochs> <learning_rate>
 
-Arguments:
-    activation: SIG - Sigmoid Function
-        RELU - ReLu Activation Function
-	epochs: INTEGER
-	learning_rate: FLOAT
+    Arguments:
+        activation: SIG - Sigmoid Function
+            RELU - ReLu Activation Function
+        epochs: INTEGER
+    	learning_rate: FLOAT
 """
 from docopt import docopt
 print(docopt(__doc__, version='1.0.0rc2'))
@@ -46,7 +46,7 @@ cuda = torch.cuda.is_available()
 #if cuda:
 #    torch.cuda.manual_seed(42)
 
-batch_size = 20
+batch_size = 100
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
@@ -212,9 +212,12 @@ testidate(test_lossv, test_accv)
 
 
 
-print "\n"
-print zip(range(1, epochs + 1), zip([float(x) for x in val_lossv] , [float(x) for x in val_accv]))
+#print "\n"
+#print zip(range(1, epochs + 1), zip([float(x) for x in val_lossv] , [float(x) for x in val_accv]))
 
-print "\n"
-print zip(range(1, epochs + 1), zip([float(x) for x in test_lossv] , [float(x) for x in test_accv]))
+#print "\n"
+#print zip(range(1, epochs + 1), zip([float(x) for x in test_lossv] , [float(x) for x in test_accv]))
 
+print [float(x) for x in lossv]
+print [float(x) for x in accv]
+#print zip(range(1, epochs + 1), zip([float(x) for x in lossv] , [float(x) for x in accv]))
