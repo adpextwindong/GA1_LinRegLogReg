@@ -16,6 +16,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
+from torch.utils.data.sampler import SubsetRandomSampler
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -49,15 +50,27 @@ batch_size = 100
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-train_loader = torch.utils.data.DataLoader(
-    datasets.CIFAR10('../data', train=True, download=True,
+train_dataset = datasets.CIFAR10('../data', train=True, download=True,
                    transform=transforms.Compose([
                        transforms.ToTensor(),
                        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
-                   ])),
-    batch_size=batch_size, shuffle=True, **kwargs)
+                   ]))
+
+num_train = len(train_dataset)
+indices = list(range(num_train))
+split = 40000
+
+train_idx, valid_idx = indices[:split+1], indices[split+1:]
+train_sampler = SubsetRandomSampler(train_idx)
+valid_sampler = SubsetRandomSampler(valid_idx) 
+
+train_loader = torch.utils.data.DataLoader(
+    train_dataset, batch_size=batch_size, sampler=train_sampler, **kwargs)
 
 validation_loader = torch.utils.data.DataLoader(
+    train_dataset, batch_size=batch_size, sampler=valid_sampler, **kwargs)
+
+test_loader = torch.utils.data.DataLoader(
     datasets.CIFAR10('../data', train=False, transform=transforms.Compose([
                        transforms.ToTensor(),
                        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
@@ -141,7 +154,7 @@ def train(epoch, log_interval=100):
         optimizer.step()
         if batch_idx % log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
+                epoch, batch_idx * len(data), split,
                 100. * batch_idx / len(train_loader), loss))
 
 def validate(loss_vector, accuracy_vector):
@@ -159,18 +172,51 @@ def validate(loss_vector, accuracy_vector):
     val_loss /= len(validation_loader)
     loss_vector.append(val_loss)
 
-    accuracy = 100. * correct / float(len(validation_loader.dataset))
+    accuracy = 100. * correct / float(len(validation_loader.dataset) - split)
     accuracy_vector.append(accuracy)
     
     print('Validation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        val_loss, correct, len(validation_loader.dataset), accuracy))
+        val_loss, correct, len(validation_loader.dataset) - split, accuracy))
+
+
+def testidate(loss_vector, accuracy_vector):
+    model.eval()
+    test_loss, correct = 0, 0
+    for data, target in test_loader:
+        if cuda:
+            data, target = data.cuda(), target.cuda()
+        data, target = Variable(data), Variable(target)
+        output = model(data)
+        test_loss += F.nll_loss(output, target)
+        pred = output.data.max(1)[1] # get the index of the max log-probability
+        correct += pred.eq(target.data).cpu().sum()
+
+    test_loss /= len(test_loader)
+    loss_vector.append(test_loss)
+
+    accuracy = 100. * correct / float(len(test_loader.dataset))
+    accuracy_vector.append(accuracy)
+    
+    print('Testing set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        test_loss, correct, len(test_loader.dataset), accuracy))
+
 
 epochs = NUM_OF_EPOCHS
 
-lossv, accv = [], []
+val_lossv, val_accv = [], []
+test_lossv, test_accv = [], []
 for epoch in range(1, epochs + 1):
     train(epoch)
-    validate(lossv, accv)
+    validate(val_lossv, val_accv)
+testidate(test_lossv, test_accv)
+
+
+
+#print "\n"
+#print zip(range(1, epochs + 1), zip([float(x) for x in val_lossv] , [float(x) for x in val_accv]))
+
+#print "\n"
+#print zip(range(1, epochs + 1), zip([float(x) for x in test_lossv] , [float(x) for x in test_accv]))
 
 print [float(x) for x in lossv]
 print [float(x) for x in accv]
