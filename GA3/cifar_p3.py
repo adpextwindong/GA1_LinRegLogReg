@@ -1,5 +1,5 @@
 """Usage:
-	cifar_p3.py <depth> <activation> <epochs> <learning_rate> <dropout> <momentum> <weight_decay>
+	cifar_p3.py <depth> <activation> <epochs> <learning_rate> <dropout> <momentum> <weight_decay> [--c|--cont] [-l|--logging]
 
     Arguments:
         depth: INT - 1 as Single or a value > 1 for multilayer
@@ -10,6 +10,11 @@
         dropout: FLOAT
         momentum: FLOAT
         weight_decay: FLOAT
+
+    Options:
+        -h --help     Show this screen.
+        -c --cont     Save model to resume later. Will resume stored model if a matching one is found.
+        -l|--logging  Log output to log directory
 """
 from docopt import docopt
 print(docopt(__doc__, version='1.0.0rc2'))
@@ -25,6 +30,8 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+import sys
 
 neccesary_args = ['<epochs>','<learning_rate>']
 args = docopt(__doc__, version='1.0.0rc2')
@@ -46,6 +53,11 @@ DROPOUT = float(args['<dropout>'])
 MOMENTUM = float(args['<momentum>'])
 WEIGHT_DECAY = float(args['<weight_decay>'])
 DEPTH = int(args['<depth>'])
+
+RUN_NAME = '_'.join(sys.argv[1:len(sys.argv)-1])
+CONT_MODEL_PATH = 'models/' + RUN_NAME + '.model'
+LOG_PATH = 'log/' + RUN_NAME + '.txt'
+#TODO mkdir -p
 
 cuda = torch.cuda.is_available()
 #print('Using PyTorch version:', torch.__version__, 'CUDA:', cuda)
@@ -152,7 +164,17 @@ class TwoHidLayerReLuNet(nn.Module):
         x = self.fc2_drop(x)
 
         return F.log_softmax(self.fc3(x), dim=1)
-        
+
+
+if(args['--c'] or args['--cont']):
+    print "Checking for model"
+    #TODO test -e MODEL_PATH
+        #load from file if exists, figure out what epoch and progress it was on last
+    #TODO SIGINT trapping to save model
+    #https://stackoverflow.com/questions/1112343/how-do-i-capture-sigint-in-python#1112350
+    #TODO handling for resuming at the correct epoch
+    #TODO logging to log folder
+
 if(DEPTH == 1):
     if(ACTIVATION == 'SIG'):
         model = Net()
