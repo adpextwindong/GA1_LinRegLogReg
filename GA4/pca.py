@@ -40,12 +40,19 @@ def applyNormMatrix(in_matrix, norm_vector):
 
 def findNormalizationVector(data_matrix):
 	number_of_features = data_matrix.shape[1]
-	normRanges = [(np.min(data_matrix[:,col]) , (np.max(data_matrix[:,col]))) for col in xrange(number_of_features)]
+        flatM = data_matrix.flatten()
+        minval = min(flatM)
+        maxval = max(flatM)
+        absmax = max(abs(minval), abs(maxval))
+	normRanges = [(absmax, -absmax) for col in xrange(number_of_features)]
 	return normRanges
 
 def pca(data, n):
     #Calculate mean
     mean = data.mean(axis=0)
+    #print(mean.shape)
+    mean_norm = np.true_divide(mean, 255)
+    np.savetxt("mean.csv", mean_norm[None], fmt="%.5f", delimiter=",")
 
     #Construct covariance matrix
     dim = data.shape
@@ -54,7 +61,7 @@ def pca(data, n):
       diff = vec - mean
       cov_mat += np.outer(diff, diff)
 
-    #cov_mat = np.true_divide(cov_mat, dim[0])
+    cov_mat = np.true_divide(cov_mat, dim[0])
 
     #data -= mean
 
