@@ -4,33 +4,63 @@ import numpy as np
 import scipy
 import random
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 normsquare = lambda x: np.inner(x, x)
+PLOT = True
+PRINT = False
 
 def main():
   #set random number generator seed
   np.random.seed()
+  #sns.set_style("darkgrid")
 
   ### Problem 2.1
-  print("~~~~ Problem 2.1 ~~~~")
+  if (PRINT):
+    print("~~~~ Problem 2.1 ~~~~")
 
   #Load data into X
   X = loadX("data-1.txt")
 
   part, p1SSEs = kmeans(X, k=2, logSSE=True)
+  if (PLOT):
+    fig1 = plt.figure()
+    plt.plot(range(1, len(p1SSEs)+1), p1SSEs) 
+    plt.ylabel('SSE')
+    plt.xlabel('Iteration')
+    plt.title('K-means Convergence for k=2')
+    plt.show()
+    fig1.savefig("2-1_Report.png")
 
   ### Problem 2.2
-  print("~~~~ Problem 2.2 ~~~~")
+  if (PRINT):
+    print("~~~~ Problem 2.2 ~~~~")
 
+
+  minSSEs = []
   for k in range(2,11):
-    print("k = " + str(k))
+    if (PRINT):
+      print("k = " + str(k))
     SSEs = []
     for i in range(10):
       thisSSE = getSSE(kmeans(X, k))
-      print("Iteration " + str(i+1) + " SSE: " + str(thisSSE))
+      if (PRINT):
+        print("Iteration " + str(i+1) + " SSE: " + str(thisSSE))
       SSEs.append(thisSSE)
 
-    print("Min SSE: " + str(min(SSEs)))
+    if (PRINT):
+      print("Min SSE: " + str(min(SSEs)))
+    minSSEs.append(min(SSEs))
 
+  if (PLOT):
+    fig2 = plt.figure()
+    plt.plot(range(2, 11), minSSEs) 
+    plt.ylabel('SSE')
+    plt.xlabel('Value of k')
+    plt.title('K-means SSE with Varying k (Minimum SSE of 10 runs per k)')
+    plt.show()
+    fig2.savefig("2-2_Report.png")
 
 def kmeans(X, k, logSSE=False):
   """Use kmeans to split X into k partitions"""
@@ -58,15 +88,17 @@ def kmeans(X, k, logSSE=False):
 
     if (logSSE):
       SSEs.append(SSE)
-      print("Iteration: " + str(step))
-      print("SSE: " + str(SSE))
-      print
+      if (PRINT):
+	print("Iteration: " + str(step))
+	print("SSE: " + str(SSE))
+	print
 
     if (SSE == lastSSE):
       break
 
   if (logSSE):
-    print("Converged")
+    if (PRINT):
+      print("Converged")
     return (parts, SSEs)
 
   return parts 
