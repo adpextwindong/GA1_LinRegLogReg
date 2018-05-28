@@ -80,16 +80,33 @@ def pca(data, n):
     np.set_printoptions(suppress=True, precision=5)
     np.savetxt("eigenvectors.csv", adj_top_n.T, fmt="%.5f", delimiter=",")
 
+    norms = LA.norm(top_n, axis=0)
+    eigen_normed = top_n / norms
+
+    return eigen_normed
+
+
 if __name__ == "__main__":
 
     X = loadX("data-1.txt")
-    pca(X,10)
+    e_n = pca(X,10)
+
+    d10proj = np.dot(X, e_n)
+    idxs = np.argmax(np.abs(d10proj), axis=0)
+  
+    images = X[idxs]
+
+    disp_images = np.true_divide(images, 255)
+
+    np.savetxt("3-3_images.csv", disp_images, fmt="%.5f", delimiter=",")
+    
+
     # Problem 2.1
-    print("~~~~ Problem 3.1 ~~~~")
+    #print("~~~~ Problem 3.1 ~~~~")
     #mean = X.mean(axis=0)
     #X = X - mean
-    print "Data without mean "
-    print X
+    #print "Data without mean "
+    #print X
 
 
 
