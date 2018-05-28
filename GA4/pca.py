@@ -25,6 +25,24 @@ def loadX(fname):
 
     return X
 
+### returns a copy with the norm applied
+def applyNormMatrix(in_matrix, norm_vector):
+	ret_matrix = in_matrix.copy()
+	rows = in_matrix.shape[0]
+	assert(in_matrix.shape[1] == len(norm_vector))
+	for row in xrange(rows):
+		for col,(col_min, col_max) in enumerate(norm_vector):
+			col_range = col_max - col_min
+			ret_matrix[row, col] = (ret_matrix[row, col] -  col_min) / col_range
+			
+
+	return ret_matrix
+
+def findNormalizationVector(data_matrix):
+	number_of_features = data_matrix.shape[1]
+	normRanges = [(np.min(data_matrix[:,col]) , (np.max(data_matrix[:,col]))) for col in xrange(number_of_features)]
+	return normRanges
+
 def pca(data, n):
     #Calculate mean
     mean = data.mean(axis=0)
@@ -46,9 +64,14 @@ def pca(data, n):
     idx = np.argsort(w)[::-1]
     v = v[:,idx]
     w = w[idx]
+    
 
-    top_n_vecs = v[:,:n]
-    np.savetxt("eigenvectors.csv", top_n_vecs.T, delimiter=",")
+    top_n = v[:,:n]
+    norm_vec = findNormalizationVector(top_n)
+    adj_top_n = applyNormMatrix(top_n, norm_vec)
+
+    np.set_printoptions(suppress=True, precision=5)
+    np.savetxt("eigenvectors.csv", adj_top_n.T, fmt="%.5f", delimiter=",")
 
 if __name__ == "__main__":
 
