@@ -21,30 +21,41 @@ def loadX(fname):
             X.append(row)
     # Convert to numpy matrix type
     # and cast data from string to float
-    X = np.array(X, dtype=float)
+    X = np.array(X, dtype=int)
 
     return X
 
 def pca(data, n):
-    means = data.mean(axis=0)
-    data -= means
+    #Calculate mean
+    mean = data.mean(axis=0)
 
-    cov_mat = np.cov(data, rowvar=False)
+    #Construct covariance matrix
+    dim = data.shape
+    cov_mat = np.zeros((dim[1], dim[1]))
+    for vec in data:
+      diff = vec - mean
+      cov_mat += np.outer(diff, diff)
+
+    #cov_mat = np.true_divide(cov_mat, dim[0])
+
+    #data -= mean
+
+    #cov_mat = np.cov(data, rowvar=False)
     w, v = LA.eigh(cov_mat)
 
     idx = np.argsort(w)[::-1]
     v = v[:,idx]
     w = w[idx]
 
-    top_n_vecs = v[:n,:]
-    print np.dot(v.T, X.T).T
+    top_n_vecs = v[:,:n]
+    np.savetxt("eigenvectors.csv", top_n_vecs.T, delimiter=",")
 
 if __name__ == "__main__":
 
     X = loadX("data-1.txt")
     pca(X,10)
     # Problem 2.1
-    print("~~~~ Problem 23.1 ~~~~")
+    print("~~~~ Problem 3.1 ~~~~")
     #mean = X.mean(axis=0)
     #X = X - mean
     print "Data without mean "
