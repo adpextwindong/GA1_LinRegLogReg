@@ -83,7 +83,7 @@ def pca(data, n):
     norms = LA.norm(top_n, axis=0)
     eigen_normed = top_n / norms
 
-    return eigen_normed
+    return mean_norm, cov_mat, w[:n] ,eigen_normed
 
 def projSel(X, e_n):
   d10proj = np.dot(X, e_n)
@@ -101,7 +101,7 @@ def projSel(X, e_n):
 if __name__ == "__main__":
 
     X = loadX("data-1.txt")
-    e_n = pca(X,10)
+    mean_norm, cov_mat, w, e_n = pca(X,10)
 
     images = projSel(X, e_n)
     print (images.shape)
