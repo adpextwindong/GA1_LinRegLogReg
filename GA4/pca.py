@@ -85,21 +85,26 @@ def pca(data, n):
 
     return eigen_normed
 
+def projSel(X, e_n):
+  d10proj = np.dot(X, e_n)
+  idxs = np.argmax(np.abs(d10proj), axis=0)
+
+  images = X[idxs]
+
+  disp_images = np.true_divide(images, 255)
+
+  np.savetxt("3-3_images.csv", disp_images, fmt="%.5f", delimiter=",")
+
+  return disp_images
+
 
 if __name__ == "__main__":
 
     X = loadX("data-1.txt")
     e_n = pca(X,10)
 
-    d10proj = np.dot(X, e_n)
-    idxs = np.argmax(np.abs(d10proj), axis=0)
-  
-    images = X[idxs]
-
-    disp_images = np.true_divide(images, 255)
-
-    np.savetxt("3-3_images.csv", disp_images, fmt="%.5f", delimiter=",")
-    
+    images = projSel(X, e_n)
+    print (images.shape)
 
     # Problem 2.1
     #print("~~~~ Problem 3.1 ~~~~")
