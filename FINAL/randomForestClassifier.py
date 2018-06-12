@@ -1,3 +1,7 @@
+#import sklearn as sk
+
+
+
 if __name__ == '__main__':
     csv_header = []
     for label in ['time','glucose','slope','iob','mob','morning','afternoon','evening','night']:
@@ -8,6 +12,13 @@ if __name__ == '__main__':
 
     print (csv_header)
 
-# Dimensions to drop
-# morning, afternoon, evening, night
-#
+def train_model():
+
+    dataset = csv_header
+    #resultDataset 
+
+    #split up dataset here?
+    rf = sk.RandomForestClassifier()
+    rf.fit(trainX, trainY)
+
+    svc_w_linear_kernel = SVC(kernel='linear')
