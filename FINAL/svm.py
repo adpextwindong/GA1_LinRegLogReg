@@ -4,73 +4,100 @@ import pandas as pd
 import numpy as np
 
 def main():
-  data = generate_subsequences(load_data('data/Ind1_train/Subject_2_part1.csv'))
+  train_data = generate_subsequences(load_train_data('data/General_train/comb.csv'))
+  test_data = load_test_data('data/Final_test/general_test_instances.csv')
+
+  X_train = train_data.values[:, :-1]
+  y_train = train_data.values[:, -1]
+
   
-  k = 5
 
-  spl_idx = []
- 
-  for i in range(k):
-    l = len(data) * 1.0
-    spl_idx.append([(int)(l * i / k), (int)(l * (i+1) /k)])
+  # fit the model
+  clf = svm.SVR()
+  clf.fit(X_train, y_train)
 
-  for i in range(k):
-    print("val run : " + str(i+1))
-    st = spl_idx[i][0]
-    end = spl_idx[i][1]
-    X = data.values[:, :-1]
-    y = data.values[:, -1]
+  t = 0.12
+  predictions = clf.predict(test_data.values)
+  for i in range(len(predictions)):
+   if (predictions[i] > t):
+     print(str(predictions[i]) +",1")
+   else:
+     print(str(predictions[i]) +",0")
 
-    rows_idx = []
-    for i in range(st):
-      rows_idx.append(i)
-    for i in range(len(data)-end):
-      rows_idx.append(i+end)
-
-    # we create 20 points
-    X_train = X[rows_idx,:]
-    y_train = y[rows_idx]
-
-    X_valid = X[st:end,:]
-    y_valid = y[st:end]
-
-    # fit the model
-    clf = svm.SVR()
-    clf.fit(X_train, y_train)
-
-    predictions = clf.predict(X_valid)
-
-    for thr in [x / 100.0 for x in range(10,20)]:
-      res = {'TP': 0, 'FN': 0, 'FP': 0, 'TN': 0}
-      for i in range(len(X_valid)):
-	predict = predictions[i]
-	actual = y_valid[i]
-	#print(predict, actual)
-	if (actual > 0.5):
-	  if (predict > thr):
-	    res['TP'] += 1
-	  else:
-	    res['FN'] += 1
-	else:
-	  if (predict > thr):
-	    res['FP'] += 1
-	  else:
-	    res['TN'] += 1
-      print("Prediction threshold: " + str(thr))
-      print(res)
-      print("F-measure: " + str((2.0*res['TP'])/(2*res['TP']+res['FN']+res['FP'])))
-        
-    
   
-  #clf_weights.fit(X, y, sample_weight=sample_weight_memes)
+#  k = 5
+#
+#  spl_idx = []
+# 
+#  for i in range(k):
+#    l = len(data) * 1.0
+#    spl_idx.append([(int)(l * i / k), (int)(l * (i+1) /k)])
+#
+#  for i in range(k):
+#    print("val run : " + str(i+1))
+#    st = spl_idx[i][0]
+#    end = spl_idx[i][1]
+#    X = data.values[:, :-1]
+#    y = data.values[:, -1]
+#
+#    rows_idx = []
+#    for i in range(st):
+#      rows_idx.append(i)
+#    for i in range(len(data)-end):
+#      rows_idx.append(i+end)
+#
+#    # we create 20 points
+#    X_train = X[rows_idx,:]
+#    y_train = y[rows_idx]
+#
+#    X_valid = X[st:end,:]
+#    y_valid = y[st:end]
+#
+#    # fit the model
+#    clf = svm.SVR()
+#    clf.fit(X_train, y_train)
+#
+#    predictions = clf.predict(X_valid)
+#
+#    for thr in [x / 100.0 for x in range(10,20)]:
+#      res = {'TP': 0, 'FN': 0, 'FP': 0, 'TN': 0}
+#      for i in range(len(X_valid)):
+#	predict = predictions[i]
+#	actual = y_valid[i]
+#	#print(predict, actual)
+#	if (actual > 0.5):
+#	  if (predict > thr):
+#	    res['TP'] += 1
+#	  else:
+#	    res['FN'] += 1
+#	else:
+#	  if (predict > thr):
+#	    res['FP'] += 1
+#	  else:
+#	    res['TN'] += 1
+#      print("Prediction threshold: " + str(thr))
+#      print(res)
+#      print("F-measure: " + str((2.0*res['TP'])/(2*res['TP']+res['FN']+res['FP'])))
+#        
+#    
+#  
+#  #clf_weights.fit(X, y, sample_weight=sample_weight_memes)
 
 
 
-def load_data(fname):
+def load_train_data(fname):
   """Load data from a file"""
   csv_header = csv_header_train()
   
   data = pd.read_csv(fname, header=None, names=csv_header, parse_dates=['time'], infer_datetime_format=True)
+  
+  return data
+
+def load_test_data(fname):
+  """Load data from a file"""
+  csv_header = csv_header_test()
+  
+  data = pd.read_csv(fname, header=None, names=csv_header)
   
   return data
 
