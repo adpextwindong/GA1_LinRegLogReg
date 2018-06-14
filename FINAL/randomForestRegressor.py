@@ -25,6 +25,13 @@ def load_data(fname):
 #
 #  return data
 
+def load_test_data(fname):
+  """Load data from a file"""
+  csv_header = csv_header_test()
+ 
+  data = pd.read_csv(fname, header=None, names=csv_header)
+ 
+  return data
 def generate_subsequences(data):
   chunkidxs = []
   idx = 0
@@ -97,8 +104,10 @@ def predict_ints(model, dataset, percentile=95):
                 return err_down, err_up
 
 variable = load_data('data/Ind1_train/Subject_2_part1.csv')
+testData = load_test_data('data/Final_test/subject7_instances.csv')
 variable = generate_subsequences(variable)
 
+testX = testData.values
 trainingDataX = variable.values[:,:-1]
 trainingDataY = variable.values[:,-1]
 
@@ -109,27 +118,38 @@ rf = RandomForestRegressor(n_estimators=1000, criterion='mse', max_features='aut
     #build the regression tree
 rf.fit(trainingDataX, trainingDataY)
 #print(rf.feature_importances_)
-prediction = rf.predict(trainingDataX)
-for thr in [x / 10.0 for x in range(10)]:
-    res = {'TP': 0, 'FN': 0, 'FP': 0, 'TN': 0}
-    for i in range(len(trainingDataX)):
-        predict = prediction[i]
+
+test= rf.predict(testX)
+    #print("Prediction threshold: " + str(thr))
+    #print(res)
+f = open('out2.txt', 'w')
+for i in test:
+    if (i>.5):
+        result = 1
+    else:
+        result = 0
+
+    f.write(str(i) + ','+ str(result) + "\n")
+    f.close
+#for thr in [x / 10.0 for x in range(10)]:
+   # res = {'TP': 0, 'FN': 0, 'FP': 0, 'TN': 0}
+   # for i in range(len(trainingDataX)):
+        #predict = prediction[i]
         #print(rf.predict([trainingDataX[i,:]]))
-        actual = trainingDataY[i]
+      #  actual = trainingDataY[i]
         
         #print(predict, actual)
-        if (actual > 0.5):
-            if (predict > thr):
-                res['TP'] += 1
-            else:
-	            res['FN'] += 1
-        else:
-            if (predict > thr):
-                res['FP'] += 1
-	    else:
-	        res['TN'] += 1
-    print("Prediction threshold: " + str(thr))
-    print(res)
+       # if (actual > 0.5):
+       #     if (predict > thr):
+      #          res['TP'] += 1
+       #     else:
+	   #         res['FN'] += 1
+      #  else:
+       #     if (predict > thr):
+       #         res['FP'] += 1
+	  #  else:
+	  #      res['TN'] += 1
+
    #lr = sk.LogisticRegression()
     #lr.fit(trainingDataX, trainingDataY)
     #run regression on the classifier
