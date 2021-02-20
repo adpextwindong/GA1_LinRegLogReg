@@ -44,8 +44,6 @@ def main():
 	else:
 		print "K = {} : Negative Result".format(k)
 
-	#import pdb; pdb.set_trace()
-
 	#total_rows = train.shape[0]
 	ROW_INDS = filter(lambda x: x%2 == 1, range(1,52))
 	
